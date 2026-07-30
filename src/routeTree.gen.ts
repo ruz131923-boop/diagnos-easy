@@ -10,33 +10,206 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as BreastCancerRouteImport } from './routes/breast-cancer'
+import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DiabetesRouteImport } from './routes/diabetes'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HeartDiseaseRouteImport } from './routes/heart-disease'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ParkinsonsRouteImport } from './routes/parkinsons'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as TermsRouteImport } from './routes/terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BreastCancerRoute = BreastCancerRouteImport.update({
+  id: '/breast-cancer',
+  path: '/breast-cancer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiePolicyRoute = CookiePolicyRouteImport.update({
+  id: '/cookie-policy',
+  path: '/cookie-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiabetesRoute = DiabetesRouteImport.update({
+  id: '/diabetes',
+  path: '/diabetes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HeartDiseaseRoute = HeartDiseaseRouteImport.update({
+  id: '/heart-disease',
+  path: '/heart-disease',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParkinsonsRoute = ParkinsonsRouteImport.update({
+  id: '/parkinsons',
+  path: '/parkinsons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/breast-cancer': typeof BreastCancerRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/dashboard': typeof DashboardRoute
+  '/diabetes': typeof DiabetesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/heart-disease': typeof HeartDiseaseRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/parkinsons': typeof ParkinsonsRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/breast-cancer': typeof BreastCancerRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/dashboard': typeof DashboardRoute
+  '/diabetes': typeof DiabetesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/heart-disease': typeof HeartDiseaseRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/parkinsons': typeof ParkinsonsRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/breast-cancer': typeof BreastCancerRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/dashboard': typeof DashboardRoute
+  '/diabetes': typeof DiabetesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/heart-disease': typeof HeartDiseaseRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/parkinsons': typeof ParkinsonsRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/breast-cancer'
+    | '/cookie-policy'
+    | '/dashboard'
+    | '/diabetes'
+    | '/forgot-password'
+    | '/heart-disease'
+    | '/how-it-works'
+    | '/login'
+    | '/parkinsons'
+    | '/privacy-policy'
+    | '/register'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/breast-cancer'
+    | '/cookie-policy'
+    | '/dashboard'
+    | '/diabetes'
+    | '/forgot-password'
+    | '/heart-disease'
+    | '/how-it-works'
+    | '/login'
+    | '/parkinsons'
+    | '/privacy-policy'
+    | '/register'
+    | '/terms'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/breast-cancer'
+    | '/cookie-policy'
+    | '/dashboard'
+    | '/diabetes'
+    | '/forgot-password'
+    | '/heart-disease'
+    | '/how-it-works'
+    | '/login'
+    | '/parkinsons'
+    | '/privacy-policy'
+    | '/register'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  BreastCancerRoute: typeof BreastCancerRoute
+  CookiePolicyRoute: typeof CookiePolicyRoute
+  DashboardRoute: typeof DashboardRoute
+  DiabetesRoute: typeof DiabetesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HeartDiseaseRoute: typeof HeartDiseaseRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  LoginRoute: typeof LoginRoute
+  ParkinsonsRoute: typeof ParkinsonsRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
+  RegisterRoute: typeof RegisterRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +221,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/breast-cancer': {
+      id: '/breast-cancer'
+      path: '/breast-cancer'
+      fullPath: '/breast-cancer'
+      preLoaderRoute: typeof BreastCancerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie-policy': {
+      id: '/cookie-policy'
+      path: '/cookie-policy'
+      fullPath: '/cookie-policy'
+      preLoaderRoute: typeof CookiePolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diabetes': {
+      id: '/diabetes'
+      path: '/diabetes'
+      fullPath: '/diabetes'
+      preLoaderRoute: typeof DiabetesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/heart-disease': {
+      id: '/heart-disease'
+      path: '/heart-disease'
+      fullPath: '/heart-disease'
+      preLoaderRoute: typeof HeartDiseaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parkinsons': {
+      id: '/parkinsons'
+      path: '/parkinsons'
+      fullPath: '/parkinsons'
+      preLoaderRoute: typeof ParkinsonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  BreastCancerRoute: BreastCancerRoute,
+  CookiePolicyRoute: CookiePolicyRoute,
+  DashboardRoute: DashboardRoute,
+  DiabetesRoute: DiabetesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  HeartDiseaseRoute: HeartDiseaseRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  LoginRoute: LoginRoute,
+  ParkinsonsRoute: ParkinsonsRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
+  RegisterRoute: RegisterRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
