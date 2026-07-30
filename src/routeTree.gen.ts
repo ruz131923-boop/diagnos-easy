@@ -13,9 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as BreastCancerRouteImport } from './routes/breast-cancer'
 import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DiabetesRouteImport } from './routes/diabetes'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HeartDiseaseRouteImport } from './routes/heart-disease'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ParkinsonsRouteImport } from './routes/parkinsons'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
@@ -42,6 +44,11 @@ const CookiePolicyRoute = CookiePolicyRouteImport.update({
   path: '/cookie-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiabetesRoute = DiabetesRouteImport.update({
   id: '/diabetes',
   path: '/diabetes',
@@ -55,6 +62,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const HeartDiseaseRoute = HeartDiseaseRouteImport.update({
   id: '/heart-disease',
   path: '/heart-disease',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -88,9 +100,11 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/breast-cancer': typeof BreastCancerRoute
   '/cookie-policy': typeof CookiePolicyRoute
+  '/dashboard': typeof DashboardRoute
   '/diabetes': typeof DiabetesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/heart-disease': typeof HeartDiseaseRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
   '/parkinsons': typeof ParkinsonsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -102,9 +116,11 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/breast-cancer': typeof BreastCancerRoute
   '/cookie-policy': typeof CookiePolicyRoute
+  '/dashboard': typeof DashboardRoute
   '/diabetes': typeof DiabetesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/heart-disease': typeof HeartDiseaseRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
   '/parkinsons': typeof ParkinsonsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -117,9 +133,11 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/breast-cancer': typeof BreastCancerRoute
   '/cookie-policy': typeof CookiePolicyRoute
+  '/dashboard': typeof DashboardRoute
   '/diabetes': typeof DiabetesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/heart-disease': typeof HeartDiseaseRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
   '/parkinsons': typeof ParkinsonsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -133,9 +151,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/breast-cancer'
     | '/cookie-policy'
+    | '/dashboard'
     | '/diabetes'
     | '/forgot-password'
     | '/heart-disease'
+    | '/how-it-works'
     | '/login'
     | '/parkinsons'
     | '/privacy-policy'
@@ -147,9 +167,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/breast-cancer'
     | '/cookie-policy'
+    | '/dashboard'
     | '/diabetes'
     | '/forgot-password'
     | '/heart-disease'
+    | '/how-it-works'
     | '/login'
     | '/parkinsons'
     | '/privacy-policy'
@@ -161,9 +183,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/breast-cancer'
     | '/cookie-policy'
+    | '/dashboard'
     | '/diabetes'
     | '/forgot-password'
     | '/heart-disease'
+    | '/how-it-works'
     | '/login'
     | '/parkinsons'
     | '/privacy-policy'
@@ -176,9 +200,11 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BreastCancerRoute: typeof BreastCancerRoute
   CookiePolicyRoute: typeof CookiePolicyRoute
+  DashboardRoute: typeof DashboardRoute
   DiabetesRoute: typeof DiabetesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HeartDiseaseRoute: typeof HeartDiseaseRoute
+  HowItWorksRoute: typeof HowItWorksRoute
   LoginRoute: typeof LoginRoute
   ParkinsonsRoute: typeof ParkinsonsRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
@@ -216,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CookiePolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diabetes': {
       id: '/diabetes'
       path: '/diabetes'
@@ -235,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/heart-disease'
       fullPath: '/heart-disease'
       preLoaderRoute: typeof HeartDiseaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -280,9 +320,11 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BreastCancerRoute: BreastCancerRoute,
   CookiePolicyRoute: CookiePolicyRoute,
+  DashboardRoute: DashboardRoute,
   DiabetesRoute: DiabetesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HeartDiseaseRoute: HeartDiseaseRoute,
+  HowItWorksRoute: HowItWorksRoute,
   LoginRoute: LoginRoute,
   ParkinsonsRoute: ParkinsonsRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
