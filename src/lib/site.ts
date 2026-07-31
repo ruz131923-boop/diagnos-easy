@@ -74,15 +74,6 @@ export const FOOTER_LINKS: { heading: string; links: { label: string; to: string
     ],
   },
   {
-    heading: "Account",
-    links: [
-      { label: "Register", to: "/register" },
-      { label: "Log In", to: "/login" },
-      { label: "Forgot Password", to: "/forgot-password" },
-      { label: "Contact", to: "/about" },
-    ],
-  },
-  {
     heading: "Legal",
     links: [
       { label: "Privacy Policy", to: "/privacy-policy" },

@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Eye, EyeOff, ShieldCheck, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -86,6 +87,10 @@ function Field({
   placeholder,
   options,
   hint,
+  min,
+  max,
+  maxLength,
+  reveal,
 }: {
   id: string;
   label: string;
@@ -95,7 +100,28 @@ function Field({
   placeholder?: string;
   options?: string[];
   hint?: string;
+  min?: number;
+  max?: number;
+  maxLength?: number;
+  reveal?: boolean;
 }) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
+  const inputType = isPassword && reveal && show ? "text" : type;
+
+  const handleChange = (raw: string) => {
+    if (type === "number") {
+      // positive numbers only
+      onChange(raw.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"));
+      return;
+    }
+    if (type === "tel") {
+      onChange(raw.replace(/[^0-9]/g, "").slice(0, 10));
+      return;
+    }
+    onChange(raw);
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
@@ -114,13 +140,34 @@ function Field({
           ))}
         </select>
       ) : (
-        <Input
-          id={id}
-          type={type}
-          value={value}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <div className="relative">
+          <Input
+            id={id}
+            type={inputType}
+            value={value}
+            placeholder={placeholder}
+            min={type === "number" ? (min ?? 0) : undefined}
+            max={type === "number" ? max : undefined}
+            maxLength={maxLength}
+            inputMode={type === "number" || type === "tel" ? "numeric" : undefined}
+            className={isPassword && reveal ? "pr-10" : undefined}
+            onKeyDown={(e) => {
+              if ((type === "number" || type === "tel") && (e.key === "-" || e.key === "+" || e.key === "e"))
+                e.preventDefault();
+            }}
+            onChange={(e) => handleChange(e.target.value)}
+          />
+          {isPassword && reveal ? (
+            <button
+              type="button"
+              onClick={() => setShow((v) => !v)}
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
+              aria-label={show ? "Hide password" : "Show password"}
+            >
+              {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          ) : null}
+        </div>
       )}
       {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
     </div>
@@ -128,7 +175,7 @@ function Field({
 }
 
 function RegisterPage() {
-  const { register } = useAuth();
+  const { register, user, hasAccount, ready } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState<StoredUser>(empty);
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -137,6 +184,16 @@ function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
 
   const set = (key: keyof StoredUser) => (v: string) => setForm((f) => ({ ...f, [key]: v }));
+
+  const ageFromDob = (dob: string) => {
+    const d = new Date(dob);
+    if (Number.isNaN(d.getTime())) return NaN;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age -= 1;
+    return age;
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,16 +219,38 @@ function RegisterPage() {
       setError("Please enter a valid email address.");
       return;
     }
-    if (!/^[+\d][\d\s-]{6,17}$/.test(form.contactNumber)) {
-      setError("Please enter a valid contact number.");
+    if (!/^\d{10}$/.test(form.contactNumber)) {
+      setError("Contact number must be exactly 10 digits, with no spaces or symbols.");
+      return;
+    }
+    const age = ageFromDob(form.dateOfBirth);
+    if (!Number.isFinite(age) || age < 1 || age > 120) {
+      setError("Please enter a real date of birth (age must be between 1 and 120 years).");
+      return;
+    }
+    const height = Number(form.heightCm);
+    if (!Number.isFinite(height) || height < 50 || height > 250) {
+      setError("Height must be a positive value between 50 cm and 250 cm.");
+      return;
+    }
+    const weight = Number(form.weightKg);
+    if (!Number.isFinite(weight) || weight < 10 || weight > 300) {
+      setError("Weight must be a positive value between 10 kg and 300 kg.");
       return;
     }
     if (form.username.trim().length < 4) {
       setError("Usernames must be at least 4 characters long.");
       return;
     }
-    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
-      setError("Passwords need at least 8 characters, including a letter and a number.");
+    if (
+      form.password.length < 8 ||
+      !/[A-Za-z]/.test(form.password) ||
+      !/\d/.test(form.password) ||
+      !/[^A-Za-z0-9]/.test(form.password)
+    ) {
+      setError(
+        "Password must be at least 8 characters and include at least one letter, one number and one special character (for example ! @ # $).",
+      );
       return;
     }
     if (form.password !== confirmPassword) {
@@ -194,17 +273,71 @@ function RegisterPage() {
 
   return (
     <>
+      {ready && (user || hasAccount) ? (
+        <>
+          <PageHeader
+            eyebrow="Registration"
+            title={user ? "You are already registered" : "This device already has an account"}
+            description="Our terms allow only one account per person, so there is no need to register again."
+          />
+          <div className="mx-auto max-w-xl px-5 py-20">
+            <div className="animate-rise rounded-2xl border border-border bg-card p-8 text-center shadow-soft">
+              <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-secondary text-primary">
+                {user ? (
+                  <UserCheck className="size-6" aria-hidden="true" />
+                ) : (
+                  <ShieldCheck className="size-6" aria-hidden="true" />
+                )}
+              </span>
+              <h2 className="mt-5 text-xl font-semibold text-foreground">
+                {user
+                  ? `You are logged in as ${user.nameWithInitials || user.username}`
+                  : "An account already exists"}
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                {user
+                  ? "Your account is active, so all prediction tools are already unlocked. Go to your dashboard to start a prediction."
+                  : "You have registered before. Please log in with your username and password. If you forgot your password, you can reset it."}
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                {user ? (
+                  <Link to="/dashboard">
+                    <Button>Go to my dashboard</Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/login">
+                      <Button>Log in</Button>
+                    </Link>
+                    <Link to="/forgot-password">
+                      <Button variant="outline">Forgot password</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <RegisterForm />
+      )}
+    </>
+  );
+
+  function RegisterForm() {
+    return (
+      <>
       <PageHeader
         eyebrow="Registration"
         title="Create your VitalSense account"
-        description="One registration covers all four prediction services. Disease-specific measurements are collected later, on each prediction page."
+        description="One account gives you all four prediction services. Test values for each disease are asked for later, on each prediction page."
       />
 
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6 px-5 py-16">
         <Section
           step={1}
           title="Personal details"
-          description="Used to personalise your reports and to age-adjust the models."
+          description="Used to personalise your reports and to adjust the results for your age."
         >
           <Field id="fullName" label="Full name" value={form.fullName} onChange={set("fullName")} placeholder="Amara Nadeesha Perera" />
           <Field
@@ -223,24 +356,46 @@ function RegisterPage() {
             type="tel"
             value={form.contactNumber}
             onChange={set("contactNumber")}
-            placeholder="+94 71 234 5678"
+            placeholder="0712345678"
+            maxLength={10}
+            hint="Exactly 10 digits, numbers only."
           />
         </Section>
 
         <Section
           step={2}
           title="Medical details"
-          description="Baseline body metrics shared by several models, such as BMI derived from height and weight."
+          description="Your basic body measurements. We use your height and weight to work out your BMI."
         >
-          <Field id="heightCm" label="Height (cm)" type="number" value={form.heightCm} onChange={set("heightCm")} placeholder="168" />
-          <Field id="weightKg" label="Weight (kg)" type="number" value={form.weightKg} onChange={set("weightKg")} placeholder="64" />
+          <Field
+            id="heightCm"
+            label="Height (cm)"
+            type="number"
+            value={form.heightCm}
+            onChange={set("heightCm")}
+            placeholder="168"
+            min={50}
+            max={250}
+            hint="Enter a value between 50 cm and 250 cm."
+          />
+          <Field
+            id="weightKg"
+            label="Weight (kg)"
+            type="number"
+            value={form.weightKg}
+            onChange={set("weightKg")}
+            placeholder="64"
+            min={10}
+            max={300}
+            hint="Enter a value between 10 kg and 300 kg."
+          />
           <Field id="bloodGroup" label="Blood group" value={form.bloodGroup} onChange={set("bloodGroup")} options={BLOOD_GROUPS} />
         </Section>
 
         <Section
           step={3}
           title="Account details"
-          description="Your username and password are the only credentials needed to log in."
+          description="Your username and password are all you need to log in."
         >
           <Field id="username" label="Username" value={form.username} onChange={set("username")} placeholder="anperera" />
           <div className="hidden sm:block" aria-hidden="true" />
@@ -250,7 +405,8 @@ function RegisterPage() {
             type="password"
             value={form.password}
             onChange={set("password")}
-            hint="Minimum 8 characters with at least one letter and one number."
+            reveal
+            hint="At least 8 characters with one letter, one number and one special character (! @ # $ …)."
           />
           <Field
             id="confirmPassword"
@@ -258,6 +414,7 @@ function RegisterPage() {
             type="password"
             value={confirmPassword}
             onChange={setConfirmPassword}
+            reveal
           />
         </Section>
 
@@ -339,6 +496,7 @@ function RegisterPage() {
           </div>
         </section>
       </form>
-    </>
-  );
+      </>
+    );
+  }
 }

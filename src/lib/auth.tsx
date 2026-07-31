@@ -26,6 +26,8 @@ export type StoredUser = {
 type AuthState = {
   ready: boolean;
   user: StoredUser | null;
+  /** True when this browser already has a registered account (one account per person). */
+  hasAccount: boolean;
   register: (user: StoredUser) => { ok: boolean; error?: string };
   login: (username: string, password: string) => { ok: boolean; error?: string };
   logout: () => void;
@@ -80,6 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback<AuthState["register"]>(
     (newUser) => {
       const existing = readAccounts();
+      if (existing.length > 0) {
+        return {
+          ok: false,
+          error:
+            "An account has already been created on this device. Our terms allow only one account per person — please log in instead.",
+        };
+      }
       if (existing.some((a) => a.username.toLowerCase() === newUser.username.toLowerCase())) {
         return { ok: false, error: "That username is already taken." };
       }
@@ -146,12 +155,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<AuthState>(
-    () => ({ ready, user, register, login, logout, accountExists, resetPassword }),
-    [ready, user, register, login, logout, accountExists, resetPassword],
+    () => ({
+      ready,
+      user,
+      hasAccount: accounts.length > 0,
+      register,
+      login,
+      logout,
+      accountExists,
+      resetPassword,
+    }),
+    [ready, user, accounts, register, login, logout, accountExists, resetPassword],
   );
-
-  // accounts is kept in state so consumers re-render after registration
-  void accounts;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

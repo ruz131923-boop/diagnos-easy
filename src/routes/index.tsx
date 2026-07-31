@@ -56,7 +56,7 @@ const STEPS = [
 ];
 
 function Home() {
-  const { user } = useAuth();
+  const { user, hasAccount } = useAuth();
 
   return (
     <>
@@ -98,6 +98,13 @@ function Home() {
               <Link to="/dashboard">
                 <Button size="lg">
                   Go to my dashboard
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Button>
+              </Link>
+            ) : hasAccount ? (
+              <Link to="/login">
+                <Button size="lg">
+                  Log in to your account
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Button>
               </Link>
@@ -223,7 +230,7 @@ function Home() {
               "Consent-first: predictions run only after you agree to the medical data clause.",
               "Every report you upload is processed for your prediction and nothing else.",
               "You can request deletion of your account and medical records at any time.",
-              "Results are explanations, never prescriptions — a clinician always stays in the loop.",
+              "Results are explanations, never prescriptions — a doctor always stays in the loop.",
             ].map((line) => (
               <li
                 key={line}

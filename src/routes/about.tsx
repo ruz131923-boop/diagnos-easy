@@ -26,7 +26,7 @@ const VALUES = [
   {
     icon: Target,
     title: "Explainable, not oracular",
-    body: "Every prediction shows which measurements drove it, so a result can be discussed with a clinician instead of being taken on faith.",
+    body: "Every prediction shows which measurements drove it, so a result can be discussed with a doctor instead of being taken on faith.",
   },
   {
     icon: HeartHandshake,
@@ -74,7 +74,7 @@ function AboutPage() {
               metabolic, oncological and neurological disease. Reports already contain the early
               signals, but they are dense and easy to postpone. VitalSense reads those reports,
               scores them against trained models, and hands back a short explanation the reader can
-              act on — while insisting the final word belongs to a clinician.
+              act on — while insisting the final word belongs to a doctor.
             </p>
           </section>
           <section className="rounded-2xl border border-border bg-card p-8 shadow-soft">

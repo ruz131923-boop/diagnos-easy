@@ -28,7 +28,7 @@ function HeartPage() {
     <DiseasePage
       eyebrow="Cardiovascular screening"
       title="Heart Disease Risk Prediction"
-      intro="Cardiovascular disease develops quietly over years. This model reads the values printed on your lipid panel and stress-test report, then compares your profile against the UCI heart disease cohort to estimate risk."
+      intro="Cardiovascular disease develops quietly over years. This model reads the values printed on your lipid panel and stress-test report, then compares your profile against a large heart disease study group to estimate risk."
       image={heartImage}
       imageAlt="Illustration of a human heart with an ECG waveform"
       accentClass="text-heart"

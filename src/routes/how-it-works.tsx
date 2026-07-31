@@ -3,7 +3,30 @@ import { BrainCircuit, FileSearch, LineChart, ScanText, ShieldCheck, UserPlus } 
 
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 import { DISEASES } from "@/lib/site";
+
+function AccountCta() {
+  const { ready, user, hasAccount } = useAuth();
+  if (!ready) return null;
+  if (user)
+    return (
+      <Link to="/dashboard">
+        <Button>Go to my dashboard</Button>
+      </Link>
+    );
+  if (hasAccount)
+    return (
+      <Link to="/login">
+        <Button>Log in</Button>
+      </Link>
+    );
+  return (
+    <Link to="/register">
+      <Button>Register now</Button>
+    </Link>
+  );
+}
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -48,7 +71,7 @@ const PIPELINE = [
   {
     icon: LineChart,
     title: "Explained result",
-    body: "You receive a probability, a per-factor contribution breakdown and calm, specific next steps to discuss with a clinician.",
+    body: "You receive a risk score, a simple breakdown of what affected the result and calm, specific next steps to discuss with a doctor.",
   },
 ];
 
@@ -118,9 +141,7 @@ function HowItWorksPage() {
               read every informational page freely.
             </p>
           </div>
-          <Link to="/register">
-            <Button>Register now</Button>
-          </Link>
+          <AccountCta />
         </section>
       </div>
     </>

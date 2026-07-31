@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
  * registered members see the prediction tools.
  */
 export function AuthGate({ feature, children }: { feature: string; children: ReactNode }) {
-  const { ready, user } = useAuth();
+  const { ready, user, hasAccount } = useAuth();
 
   if (!ready) {
     return (
@@ -30,17 +30,20 @@ export function AuthGate({ feature, children }: { feature: string; children: Rea
         </span>
         <h2 className="text-xl font-semibold text-foreground">Members only</h2>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-          {feature} is available to registered members. Create a free account to unlock report
-          uploads, OCR extraction and machine-learning risk predictions. Your medical data stays
-          private and is never shared with third parties.
+          {feature} is available to members only. {hasAccount
+            ? "You already have an account, so just log in to unlock report scanning and risk predictions."
+            : "Create a free account to unlock report uploads, report scanning and risk predictions."}{" "}
+          Your medical details stay private and are never shared with anyone else.
         </p>
         <div className="mt-2 flex flex-wrap justify-center gap-3">
-          <Link to="/register">
-            <Button>Register now</Button>
-          </Link>
           <Link to="/login">
-            <Button variant="outline">I already have an account</Button>
+            <Button>Log in</Button>
           </Link>
+          {hasAccount ? null : (
+            <Link to="/register">
+              <Button variant="outline">Create an account</Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

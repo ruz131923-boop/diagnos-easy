@@ -2,8 +2,29 @@ import { Link } from "@tanstack/react-router";
 import { Activity, Mail, MapPin, Phone } from "lucide-react";
 
 import { FOOTER_LINKS, SITE_NAME } from "@/lib/site";
+import { useAuth } from "@/lib/auth";
 
 export function SiteFooter() {
+  const { ready, user, hasAccount } = useAuth();
+
+  const accountLinks: { label: string; to: string }[] = user
+    ? [
+        { label: "My Dashboard", to: "/dashboard" },
+        { label: "Contact Us", to: "/about" },
+      ]
+    : hasAccount
+      ? [
+          { label: "Log In", to: "/login" },
+          { label: "Forgot Password", to: "/forgot-password" },
+          { label: "Contact Us", to: "/about" },
+        ]
+      : [
+          { label: "Register", to: "/register" },
+          { label: "Log In", to: "/login" },
+          { label: "Forgot Password", to: "/forgot-password" },
+          { label: "Contact Us", to: "/about" },
+        ];
+
   return (
     <footer className="mt-24 border-t border-border bg-secondary/50">
       <div className="mx-auto max-w-6xl px-5 py-14">
@@ -16,9 +37,9 @@ export function SiteFooter() {
               <span className="font-display text-lg font-semibold text-foreground">{SITE_NAME}</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              {SITE_NAME} is a research-oriented clinical decision support prototype built by the
-              VitalSense student research group. It combines OCR report reading with machine learning
-              models to estimate disease risk. It never replaces a qualified medical professional.
+              {SITE_NAME} is a student research project that helps you check your health risk early.
+              It reads your medical report with scanning technology and uses machine learning to
+              estimate your risk. It never takes the place of a qualified doctor.
             </p>
             <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
@@ -53,6 +74,29 @@ export function SiteFooter() {
               </ul>
             </div>
           ))}
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground">
+              Account
+            </h3>
+            <ul className="mt-4 space-y-2.5">
+              {(ready ? accountLinks : []).map((link) => (
+                <li key={link.label + link.to}>
+                  <Link
+                    to={link.to}
+                    className="text-sm text-muted-foreground transition-colors duration-300 hover:text-primary"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {ready && hasAccount ? (
+              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                One account per person. If you already have an account, just log in.
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-border pt-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
@@ -72,9 +116,9 @@ export function SiteFooter() {
           </nav>
         </div>
         <p className="mt-6 rounded-lg border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
-          Medical disclaimer: predictions are statistical estimates produced by machine learning
-          models for educational and screening-support purposes only. They are not a diagnosis.
-          Always consult a licensed clinician before making any health decision.
+          Medical disclaimer: these results are estimates made by machine learning models, meant for
+          learning and early screening support only. They are not a diagnosis. Always talk to a
+          qualified doctor before making any health decision.
         </p>
       </div>
     </footer>

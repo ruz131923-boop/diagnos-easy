@@ -8,6 +8,12 @@ export type FieldDef = {
   options?: string[];
   placeholder?: string;
   fromOcr?: boolean;
+  /** Smallest sensible value for a real person (numbers only). */
+  min?: number;
+  /** Largest sensible value for a real person (numbers only). */
+  max?: number;
+  /** Allow decimals? Defaults to true. */
+  step?: number;
 };
 
 export type Values = Record<string, string>;
@@ -48,7 +54,7 @@ function buildOutcome(
 /* ---------------------------------- heart --------------------------------- */
 
 export const HEART_FIELDS: FieldDef[] = [
-  { name: "age", label: "Age (years)", type: "number", placeholder: "54" },
+  { name: "age", label: "Age (years)", type: "number", placeholder: "54", min: 1, max: 120, step: 1 },
   { name: "sex", label: "Sex", type: "select", options: ["Female", "Male"] },
   {
     name: "restingBp",
@@ -56,6 +62,8 @@ export const HEART_FIELDS: FieldDef[] = [
     type: "number",
     placeholder: "132",
     fromOcr: true,
+    min: 60,
+    max: 250,
   },
   {
     name: "cholesterol",
@@ -63,8 +71,17 @@ export const HEART_FIELDS: FieldDef[] = [
     type: "number",
     placeholder: "228",
     fromOcr: true,
+    min: 80,
+    max: 600,
   },
-  { name: "maxHeartRate", label: "Max heart rate achieved", type: "number", placeholder: "148" },
+  {
+    name: "maxHeartRate",
+    label: "Highest heart rate reached (beats per minute)",
+    type: "number",
+    placeholder: "148",
+    min: 50,
+    max: 230,
+  },
   {
     name: "chestPain",
     label: "Chest pain type",
@@ -90,8 +107,10 @@ export const HEART_FIELDS: FieldDef[] = [
     type: "number",
     placeholder: "1.2",
     fromOcr: true,
+    min: 0,
+    max: 10,
   },
-  { name: "smoker", label: "Current smoker", type: "select", options: ["No", "Yes"] },
+  { name: "smoker", label: "Do you smoke at the moment?", type: "select", options: ["No", "Yes"] },
 ];
 
 export function predictHeart(v: Values): PredictionOutcome {
@@ -170,30 +189,56 @@ export function predictHeart(v: Values): PredictionOutcome {
 /* --------------------------------- diabetes -------------------------------- */
 
 export const DIABETES_FIELDS: FieldDef[] = [
-  { name: "age", label: "Age (years)", type: "number", placeholder: "42" },
-  { name: "glucose", label: "Fasting glucose (mg/dL)", type: "number", placeholder: "118", fromOcr: true },
-  { name: "hba1c", label: "HbA1c (%)", type: "number", placeholder: "5.9", fromOcr: true },
-  { name: "bmi", label: "BMI (kg/m²)", type: "number", placeholder: "27.4" },
+  { name: "age", label: "Age (years)", type: "number", placeholder: "42", min: 1, max: 120, step: 1 },
+  {
+    name: "glucose",
+    label: "Fasting glucose (mg/dL)",
+    type: "number",
+    placeholder: "118",
+    fromOcr: true,
+    min: 40,
+    max: 500,
+  },
+  { name: "hba1c", label: "HbA1c (%)", type: "number", placeholder: "5.9", fromOcr: true, min: 3, max: 20 },
+  { name: "bmi", label: "BMI (kg/m²)", type: "number", placeholder: "27.4", min: 10, max: 70 },
   {
     name: "insulin",
     label: "Serum insulin (µU/mL)",
     type: "number",
     placeholder: "94",
     fromOcr: true,
+    min: 1,
+    max: 900,
   },
-  { name: "bloodPressure", label: "Diastolic BP (mm Hg)", type: "number", placeholder: "78", fromOcr: true },
-  { name: "pregnancies", label: "Number of pregnancies", type: "number", placeholder: "0" },
+  {
+    name: "bloodPressure",
+    label: "Diastolic blood pressure (mm Hg)",
+    type: "number",
+    placeholder: "78",
+    fromOcr: true,
+    min: 30,
+    max: 150,
+  },
+  {
+    name: "pregnancies",
+    label: "Number of pregnancies",
+    type: "number",
+    placeholder: "0",
+    min: 0,
+    max: 20,
+    step: 1,
+  },
   {
     name: "familyHistory",
-    label: "Diabetes in immediate family",
+    label: "Does a close family member have diabetes?",
     type: "select",
     options: ["No", "Yes"],
   },
   {
     name: "activity",
-    label: "Weekly physical activity",
+    label: "How often do you exercise in a week?",
     type: "select",
-    options: ["Active (4+ days)", "Some (1-3 days)", "Sedentary"],
+    options: ["Often (4 or more days)", "Sometimes (1 to 3 days)", "Rarely or never"],
   },
 ];
 
@@ -211,7 +256,7 @@ export function predictDiabetes(v: Values): PredictionOutcome {
   const ageScore = (age - 28) * 0.4;
   const familyScore = v.familyHistory === "Yes" ? 12 : 0;
   const activityScore =
-    v.activity === "Sedentary" ? 11 : v.activity === "Some (1-3 days)" ? 5 : 0;
+    v.activity === "Rarely or never" ? 11 : v.activity === "Sometimes (1 to 3 days)" ? 5 : 0;
 
   const score =
     glucoseScore + hba1cScore + bmiScore + insulinScore + ageScore + familyScore + activityScore;
@@ -240,7 +285,7 @@ export function predictDiabetes(v: Values): PredictionOutcome {
       { label: "Fasting glucose", weight: glucoseScore * 1.7 },
       { label: "BMI", weight: bmiScore * 2.2 },
       { label: "Insulin response", weight: insulinScore * 3 },
-      { label: "Family history & activity", weight: (familyScore + activityScore) * 2.2 },
+      { label: "Family history & exercise", weight: (familyScore + activityScore) * 2.2 },
     ],
     {
       low: [
@@ -264,23 +309,23 @@ export function predictDiabetes(v: Values): PredictionOutcome {
 /* ------------------------------ breast cancer ------------------------------ */
 
 export const BREAST_FIELDS: FieldDef[] = [
-  { name: "radiusMean", label: "Mean radius", hint: "µm", type: "number", placeholder: "14.1" },
-  { name: "textureMean", label: "Mean texture", type: "number", placeholder: "19.3" },
-  { name: "perimeterMean", label: "Mean perimeter", type: "number", placeholder: "91.9" },
-  { name: "areaMean", label: "Mean area", type: "number", placeholder: "654" },
-  { name: "smoothnessMean", label: "Mean smoothness", type: "number", placeholder: "0.096" },
-  { name: "compactnessMean", label: "Mean compactness", type: "number", placeholder: "0.104" },
-  { name: "concavityMean", label: "Mean concavity", type: "number", placeholder: "0.089" },
-  { name: "symmetryMean", label: "Mean symmetry", type: "number", placeholder: "0.181" },
+  { name: "radiusMean", label: "Mean radius", hint: "µm", type: "number", placeholder: "14.1", min: 5, max: 40 },
+  { name: "textureMean", label: "Mean texture", type: "number", placeholder: "19.3", min: 5, max: 60 },
+  { name: "perimeterMean", label: "Mean perimeter", type: "number", placeholder: "91.9", min: 30, max: 260 },
+  { name: "areaMean", label: "Mean area", type: "number", placeholder: "654", min: 100, max: 3000 },
+  { name: "smoothnessMean", label: "Mean smoothness", type: "number", placeholder: "0.096", min: 0, max: 1 },
+  { name: "compactnessMean", label: "Mean compactness", type: "number", placeholder: "0.104", min: 0, max: 1 },
+  { name: "concavityMean", label: "Mean concavity", type: "number", placeholder: "0.089", min: 0, max: 1 },
+  { name: "symmetryMean", label: "Mean symmetry", type: "number", placeholder: "0.181", min: 0, max: 1 },
   {
     name: "familyHistory",
-    label: "Family history of breast cancer",
+    label: "Has anyone in your family had breast cancer?",
     type: "select",
     options: ["No", "Yes"],
   },
   {
     name: "lump",
-    label: "Palpable lump noticed",
+    label: "Have you felt a lump?",
     type: "select",
     options: ["No", "Yes"],
   },
@@ -351,34 +396,39 @@ export function predictBreast(v: Values): PredictionOutcome {
 /* ------------------------------- parkinson's ------------------------------- */
 
 export const PARKINSONS_FIELDS: FieldDef[] = [
-  { name: "age", label: "Age (years)", type: "number", placeholder: "62" },
-  { name: "fo", label: "Average vocal frequency (Hz)", type: "number", placeholder: "152" },
-  { name: "jitter", label: "Jitter (%)", type: "number", placeholder: "0.62" },
-  { name: "shimmer", label: "Shimmer (dB)", type: "number", placeholder: "0.31" },
-  { name: "hnr", label: "Harmonic-to-noise ratio (dB)", type: "number", placeholder: "21.4" },
-  { name: "rpde", label: "RPDE", type: "number", placeholder: "0.52" },
-  { name: "tremor", label: "Resting tremor in hands", type: "select", options: ["No", "Mild", "Pronounced"] },
+  { name: "age", label: "Age (years)", type: "number", placeholder: "62", min: 1, max: 120, step: 1 },
+  { name: "fo", label: "Average voice frequency (Hz)", type: "number", placeholder: "152", min: 50, max: 400 },
+  { name: "jitter", label: "Jitter (%)", type: "number", placeholder: "0.62", min: 0, max: 20 },
+  { name: "shimmer", label: "Shimmer (dB)", type: "number", placeholder: "0.31", min: 0, max: 20 },
+  { name: "hnr", label: "Harmonic-to-noise ratio (dB)", type: "number", placeholder: "21.4", min: 0, max: 45 },
+  { name: "rpde", label: "RPDE", type: "number", placeholder: "0.52", min: 0, max: 1 },
+  {
+    name: "tremor",
+    label: "Shaking in your hands while resting",
+    type: "select",
+    options: ["No", "Mild", "Strong"],
+  },
   {
     name: "rigidity",
-    label: "Muscle stiffness or rigidity",
+    label: "Stiff muscles",
     type: "select",
-    options: ["No", "Mild", "Pronounced"],
+    options: ["No", "Mild", "Strong"],
   },
   {
     name: "bradykinesia",
-    label: "Slowed movement (bradykinesia)",
+    label: "Slower movements than before (bradykinesia)",
     type: "select",
-    options: ["No", "Mild", "Pronounced"],
+    options: ["No", "Mild", "Strong"],
   },
   {
     name: "handwriting",
-    label: "Handwriting has become smaller",
+    label: "Has your handwriting become smaller?",
     type: "select",
     options: ["No", "Yes"],
   },
 ];
 
-const sev = (v: string | undefined) => (v === "Pronounced" ? 13 : v === "Mild" ? 6 : 0);
+const sev = (v: string | undefined) => (v === "Strong" ? 13 : v === "Mild" ? 6 : 0);
 
 export function predictParkinsons(v: Values): PredictionOutcome {
   const jitter = num(v.jitter);
@@ -409,12 +459,12 @@ export function predictParkinsons(v: Values): PredictionOutcome {
       moderate: {
         headline: "Some early Parkinsonian markers present",
         detail:
-          "Vocal irregularity or motor answers deviate mildly from control ranges. A neurology screening is advisable.",
+          "Vocal irregularity or motor answers are slightly outside the healthy range. A neurology screening is advisable.",
       },
       high: {
         headline: "Strong Parkinsonian markers detected",
         detail:
-          "Elevated jitter and shimmer combined with your motor symptom answers align with the Parkinson's cohort.",
+          "Elevated jitter and shimmer combined with your motor symptom answers look similar to people who have Parkinson's disease.",
       },
     },
     [
@@ -422,7 +472,7 @@ export function predictParkinsons(v: Values): PredictionOutcome {
       { label: "Voice shimmer", weight: shimmerScore * 2 },
       { label: "Harmonic-to-noise ratio", weight: hnrScore * 2.2 },
       { label: "Motor symptoms", weight: motorScore * 2.4 },
-      { label: "Nonlinear dynamics (RPDE)", weight: rpdeScore * 2.2 },
+      { label: "Voice signal irregularity (RPDE)", weight: rpdeScore * 2.2 },
     ],
     {
       low: [
