@@ -26,6 +26,12 @@ export function PredictionForm({
 
   const set = (name: string, value: string) => onChange({ ...values, [name]: value });
 
+  // Numbers must be positive: strip minus signs and any non-numeric characters.
+  const setNumber = (name: string, value: string) => {
+    const cleaned = value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
+    set(name, cleaned);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const missing = fields.filter((f) => !values[f.name]?.trim());
@@ -33,6 +39,38 @@ export function PredictionForm({
       setError(`Please complete all ${fields.length} fields — ${missing.length} still empty.`);
       return;
     }
+
+    for (const field of fields) {
+      if (field.type !== "number") continue;
+      const raw = values[field.name] ?? "";
+      const n = Number(raw);
+      if (!Number.isFinite(n)) {
+        setError(`Please enter a valid number for “${field.label}”.`);
+        return;
+      }
+      if (n <= 0 && (field.min ?? 0) > 0) {
+        setError(`“${field.label}” must be a positive value.`);
+        return;
+      }
+      if (n < 0) {
+        setError(`“${field.label}” cannot be a negative value.`);
+        return;
+      }
+      if (field.step === 1 && !Number.isInteger(n)) {
+        setError(`“${field.label}” must be a whole number.`);
+        return;
+      }
+      if (
+        (field.min !== undefined && n < field.min) ||
+        (field.max !== undefined && n > field.max)
+      ) {
+        setError(
+          `“${field.label}” looks out of range. Please enter a value between ${field.min} and ${field.max}.`,
+        );
+        return;
+      }
+    }
+
     setError(null);
     setRunning(true);
     setOutcome(null);
@@ -81,13 +119,28 @@ export function PredictionForm({
                 <Input
                   id={field.name}
                   type={field.type}
-                  step="any"
+                  step={field.step === 1 ? 1 : "any"}
+                  min={field.type === "number" ? (field.min ?? 0) : undefined}
+                  max={field.type === "number" ? field.max : undefined}
+                  onKeyDown={(e) => {
+                    if (field.type === "number" && (e.key === "-" || e.key === "+" || e.key === "e"))
+                      e.preventDefault();
+                  }}
                   inputMode={field.type === "number" ? "decimal" : "text"}
                   placeholder={field.placeholder}
                   value={values[field.name] ?? ""}
-                  onChange={(e) => set(field.name, e.target.value)}
+                  onChange={(e) =>
+                    field.type === "number"
+                      ? setNumber(field.name, e.target.value)
+                      : set(field.name, e.target.value)
+                  }
                 />
               )}
+              {field.type === "number" && field.min !== undefined && field.max !== undefined ? (
+                <p className="text-xs text-muted-foreground">
+                  Allowed range: {field.min} – {field.max}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>

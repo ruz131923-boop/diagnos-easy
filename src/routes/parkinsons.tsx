@@ -44,7 +44,7 @@ function ParkinsonsPage() {
         },
         {
           heading: "How the voice metrics are produced",
-          body: "A clinician or speech analysis tool records a sustained vowel and reports these acoustic features. Enter them exactly as given; the model expects jitter as a percentage and shimmer in decibels.",
+          body: "A doctor or speech analysis tool records a sustained vowel and reports these acoustic features. Enter them exactly as given; the model expects jitter as a percentage and shimmer in decibels.",
         },
         {
           heading: "Why early screening matters",

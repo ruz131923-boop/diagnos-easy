@@ -96,7 +96,7 @@ export function PredictionResult({ outcome }: { outcome: PredictionOutcome }) {
         </ul>
         <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
           This output is a probabilistic estimate, not a diagnosis. Please review it with a licensed
-          clinician.
+          doctor.
         </p>
       </div>
     </section>

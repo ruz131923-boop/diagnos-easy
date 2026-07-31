@@ -10,7 +10,7 @@ const navLinkClass =
   "text-sm text-muted-foreground transition-colors duration-300 hover:text-primary";
 
 export function SiteHeader() {
-  const { user, logout, ready } = useAuth();
+  const { user, logout, ready, hasAccount } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -71,18 +71,20 @@ export function SiteHeader() {
                 Log out
               </Button>
             </>
-          ) : (
+          ) : ready ? (
             <>
               <Link to="/login">
                 <Button variant="outline" size="sm">
                   Log In
                 </Button>
               </Link>
-              <Link to="/register">
-                <Button size="sm">Register</Button>
-              </Link>
+              {hasAccount ? null : (
+                <Link to="/register">
+                  <Button size="sm">Register</Button>
+                </Link>
+              )}
             </>
-          )}
+          ) : null}
         </div>
 
         <button
@@ -127,20 +129,22 @@ export function SiteHeader() {
                     Log out
                   </Button>
                 </>
-              ) : (
+              ) : ready ? (
                 <>
                   <Link to="/login" onClick={() => setOpen(false)} className="flex-1">
                     <Button variant="outline" size="sm" className="w-full">
                       Log In
                     </Button>
                   </Link>
-                  <Link to="/register" onClick={() => setOpen(false)} className="flex-1">
-                    <Button size="sm" className="w-full">
-                      Register
-                    </Button>
-                  </Link>
+                  {hasAccount ? null : (
+                    <Link to="/register" onClick={() => setOpen(false)} className="flex-1">
+                      <Button size="sm" className="w-full">
+                        Register
+                      </Button>
+                    </Link>
+                  )}
                 </>
-              )}
+              ) : null}
             </div>
           </nav>
         </div>

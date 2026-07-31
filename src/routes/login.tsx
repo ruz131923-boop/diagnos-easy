@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,12 +28,17 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { login } = useAuth();
+  const { login, user, hasAccount, ready } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Already signed in: no need to see the log in form again.
+  useEffect(() => {
+    if (ready && user) navigate({ to: "/dashboard", replace: true });
+  }, [ready, user, navigate]);
 
   return (
     <div className="bg-[image:var(--gradient-calm)]">
@@ -118,12 +123,14 @@ function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            New here?{" "}
-            <Link to="/register" className="font-medium text-primary hover:underline">
-              Create an account
-            </Link>
-          </p>
+          {ready && !user && !hasAccount ? (
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              New here?{" "}
+              <Link to="/register" className="font-medium text-primary hover:underline">
+                Create an account
+              </Link>
+            </p>
+          ) : null}
         </div>
 
         <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
