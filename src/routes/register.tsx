@@ -330,14 +330,14 @@ function RegisterPage() {
       <PageHeader
         eyebrow="Registration"
         title="Create your VitalSense account"
-        description="One registration covers all four prediction services. Disease-specific measurements are collected later, on each prediction page."
+        description="One account gives you all four prediction services. Test values for each disease are asked for later, on each prediction page."
       />
 
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6 px-5 py-16">
         <Section
           step={1}
           title="Personal details"
-          description="Used to personalise your reports and to age-adjust the models."
+          description="Used to personalise your reports and to adjust the results for your age."
         >
           <Field id="fullName" label="Full name" value={form.fullName} onChange={set("fullName")} placeholder="Amara Nadeesha Perera" />
           <Field
@@ -365,7 +365,7 @@ function RegisterPage() {
         <Section
           step={2}
           title="Medical details"
-          description="Baseline body metrics shared by several models, such as BMI derived from height and weight."
+          description="Your basic body measurements. We use your height and weight to work out your BMI."
         >
           <Field
             id="heightCm"
@@ -395,7 +395,7 @@ function RegisterPage() {
         <Section
           step={3}
           title="Account details"
-          description="Your username and password are the only credentials needed to log in."
+          description="Your username and password are all you need to log in."
         >
           <Field id="username" label="Username" value={form.username} onChange={set("username")} placeholder="anperera" />
           <div className="hidden sm:block" aria-hidden="true" />
