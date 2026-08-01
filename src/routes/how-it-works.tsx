@@ -56,7 +56,7 @@ const PIPELINE = [
   {
     icon: ScanText,
     title: "OCR extraction",
-    body: "For heart and diabetes screening, uploaded reports are converted to text, then medical entities such as cholesterol or HbA1c are located and parsed.",
+    body: "For heart and diabetes screening, uploaded reports are converted to text, then medical entities such as cholesterol or blood sugar are located and parsed.",
   },
   {
     icon: FileSearch,

@@ -43,8 +43,8 @@ export function SiteFooter() {
             </p>
             <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
-                <MapPin className="size-4 text-primary" aria-hidden="true" /> Faculty of Computing,
-                Colombo 07
+                <MapPin className="size-4 text-primary" aria-hidden="true" /> USJP, Faculty of
+                Technology, Homgama
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="size-4 text-primary" aria-hidden="true" /> hello@vitalsense.health
@@ -65,7 +65,7 @@ export function SiteFooter() {
                   <li key={link.label + link.to}>
                     <Link
                       to={link.to}
-                      className="text-sm text-muted-foreground transition-colors duration-300 hover:text-primary"
+                      className="link-slide text-sm text-muted-foreground hover:text-primary"
                     >
                       {link.label}
                     </Link>
@@ -84,7 +84,7 @@ export function SiteFooter() {
                 <li key={link.label + link.to}>
                   <Link
                     to={link.to}
-                    className="text-sm text-muted-foreground transition-colors duration-300 hover:text-primary"
+                    className="link-slide text-sm text-muted-foreground hover:text-primary"
                   >
                     {link.label}
                   </Link>

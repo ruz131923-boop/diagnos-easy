@@ -3,6 +3,7 @@ import { Eye, EyeOff, ShieldCheck, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Encouragement } from "@/components/encouragement";
 import { PageHeader } from "@/components/page-header";
 import { TermsText } from "@/components/terms-text";
 import { Button } from "@/components/ui/button";
@@ -271,10 +272,8 @@ function RegisterPage() {
     navigate({ to: "/dashboard" });
   };
 
-  return (
+  const alreadyView = (
     <>
-      {ready && (user || hasAccount) ? (
-        <>
           <PageHeader
             eyebrow="Registration"
             title={user ? "You are already registered" : "This device already has an account"}
@@ -317,16 +316,11 @@ function RegisterPage() {
               </div>
             </div>
           </div>
-        </>
-      ) : (
-        <RegisterForm />
-      )}
     </>
   );
 
-  function RegisterForm() {
-    return (
-      <>
+  const registerForm = (
+    <>
       <PageHeader
         eyebrow="Registration"
         title="Create your VitalSense account"
@@ -334,6 +328,7 @@ function RegisterPage() {
       />
 
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6 px-5 py-16">
+        <Encouragement />
         <Section
           step={1}
           title="Personal details"
@@ -496,7 +491,8 @@ function RegisterPage() {
           </div>
         </section>
       </form>
-      </>
-    );
-  }
+    </>
+  );
+
+  return ready && (user || hasAccount) ? alreadyView : registerForm;
 }
