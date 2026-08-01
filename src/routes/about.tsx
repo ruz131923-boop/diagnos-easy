@@ -95,7 +95,7 @@ function AboutPage() {
               <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">Address</dt>
                 <dd className="text-right font-medium text-foreground">
-                  Faculty of Computing, Colombo 07, Sri Lanka
+                  USJP, Faculty of Technology, Homgama, Sri Lanka
                 </dd>
               </div>
             </dl>

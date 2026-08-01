@@ -28,7 +28,7 @@ export const DISEASES: DiseaseMeta[] = [
     key: "diabetes",
     path: "/diabetes",
     name: "Diabetes",
-    short: "Type 2 diabetes likelihood from glucose, HbA1c, BMI and family history signals.",
+    short: "Type 2 diabetes likelihood from glucose, insulin, BMI and family history signals.",
     method: "Report OCR + clinical form · Random forest model",
     accent: "text-diabetes",
     soft: "bg-diabetes-soft",
