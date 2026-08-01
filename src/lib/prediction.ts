@@ -199,7 +199,14 @@ export const DIABETES_FIELDS: FieldDef[] = [
     min: 40,
     max: 500,
   },
-  { name: "hba1c", label: "HbA1c (%)", type: "number", placeholder: "5.9", fromOcr: true, min: 3, max: 20 },
+  {
+    name: "dpf",
+    label: "Diabetes pedigree function",
+    type: "number",
+    placeholder: "0.47",
+    min: 0.05,
+    max: 2.5,
+  },
   { name: "bmi", label: "BMI (kg/m²)", type: "number", placeholder: "27.4", min: 10, max: 70 },
   {
     name: "insulin",
@@ -244,13 +251,13 @@ export const DIABETES_FIELDS: FieldDef[] = [
 
 export function predictDiabetes(v: Values): PredictionOutcome {
   const glucose = num(v.glucose);
-  const hba1c = num(v.hba1c);
+  const dpf = num(v.dpf);
   const bmi = num(v.bmi);
   const insulin = num(v.insulin);
   const age = num(v.age);
 
   const glucoseScore = (glucose - 90) * 0.7;
-  const hba1cScore = (hba1c - 5.2) * 16;
+  const dpfScore = (dpf - 0.35) * 34;
   const bmiScore = (bmi - 22) * 1.9;
   const insulinScore = (insulin - 80) * 0.09;
   const ageScore = (age - 28) * 0.4;
@@ -259,7 +266,7 @@ export function predictDiabetes(v: Values): PredictionOutcome {
     v.activity === "Rarely or never" ? 11 : v.activity === "Sometimes (1 to 3 days)" ? 5 : 0;
 
   const score =
-    glucoseScore + hba1cScore + bmiScore + insulinScore + ageScore + familyScore + activityScore;
+    glucoseScore + dpfScore + bmiScore + insulinScore + ageScore + familyScore + activityScore;
 
   return buildOutcome(
     score,
@@ -277,11 +284,11 @@ export function predictDiabetes(v: Values): PredictionOutcome {
       high: {
         headline: "High likelihood of type 2 diabetes",
         detail:
-          "Glucose and HbA1c values are strongly associated with diabetic profiles in the training data.",
+          "Your glucose values and family-history score are strongly associated with diabetic profiles in the training data.",
       },
     },
     [
-      { label: "HbA1c", weight: hba1cScore * 1.8 },
+      { label: "Diabetes pedigree function", weight: dpfScore * 1.8 },
       { label: "Fasting glucose", weight: glucoseScore * 1.7 },
       { label: "BMI", weight: bmiScore * 2.2 },
       { label: "Insulin response", weight: insulinScore * 3 },
@@ -289,7 +296,7 @@ export function predictDiabetes(v: Values): PredictionOutcome {
     ],
     {
       low: [
-        "Recheck fasting glucose and HbA1c once a year.",
+        "Recheck fasting glucose once a year.",
         "Maintain a fibre-rich diet and steady weight.",
       ],
       moderate: [
