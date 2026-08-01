@@ -271,10 +271,8 @@ function RegisterPage() {
     navigate({ to: "/dashboard" });
   };
 
-  return (
+  const alreadyView = (
     <>
-      {ready && (user || hasAccount) ? (
-        <>
           <PageHeader
             eyebrow="Registration"
             title={user ? "You are already registered" : "This device already has an account"}
@@ -317,16 +315,11 @@ function RegisterPage() {
               </div>
             </div>
           </div>
-        </>
-      ) : (
-        <RegisterForm />
-      )}
     </>
   );
 
-  function RegisterForm() {
-    return (
-      <>
+  const registerForm = (
+    <>
       <PageHeader
         eyebrow="Registration"
         title="Create your VitalSense account"
@@ -496,7 +489,8 @@ function RegisterPage() {
           </div>
         </section>
       </form>
-      </>
-    );
-  }
+    </>
+  );
+
+  return ready && (user || hasAccount) ? alreadyView : registerForm;
 }
