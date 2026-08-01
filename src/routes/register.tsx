@@ -3,6 +3,7 @@ import { Eye, EyeOff, ShieldCheck, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Encouragement } from "@/components/encouragement";
 import { PageHeader } from "@/components/page-header";
 import { TermsText } from "@/components/terms-text";
 import { Button } from "@/components/ui/button";
@@ -327,6 +328,7 @@ function RegisterPage() {
       />
 
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6 px-5 py-16">
+        <Encouragement />
         <Section
           step={1}
           title="Personal details"
