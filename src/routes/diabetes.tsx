@@ -11,7 +11,7 @@ export const Route = createFileRoute("/diabetes")({
       {
         name: "description",
         content:
-          "Check your type 2 diabetes likelihood from fasting glucose, HbA1c, BMI and insulin values, read automatically from your lab report.",
+          "Check your type 2 diabetes likelihood from fasting glucose, insulin, BMI and your diabetes pedigree function score.",
       },
       { property: "og:title", content: "Diabetes Risk Prediction — VitalSense" },
       {
@@ -28,7 +28,7 @@ function DiabetesPage() {
     <DiseasePage
       eyebrow="Metabolic screening"
       title="Diabetes Risk Prediction"
-      intro="Type 2 diabetes is preceded by years of measurable change. This model reads your fasting glucose, HbA1c and insulin values, adds body composition and family history, and estimates how closely your profile matches diabetic and pre-diabetic groups."
+      intro="Type 2 diabetes is preceded by years of measurable change. This model reads your fasting glucose and insulin values, adds body composition and your diabetes pedigree function (a score built from diabetes in your relatives), and estimates how closely your profile matches diabetic and pre-diabetic groups."
       image={diabetesImage}
       imageAlt="Illustration of a glucose meter and blood drop"
       accentClass="text-diabetes"
@@ -40,7 +40,7 @@ function DiabetesPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Fasting glucose, HbA1c, serum insulin, diastolic blood pressure, BMI, age, pregnancies, family history and weekly physical activity — a superset of the classic Pima Indians diabetes feature set.",
+          body: "Fasting glucose, serum insulin, diastolic blood pressure, BMI, age, pregnancies, the diabetes pedigree function (usually between 0.05 and 2.5, where a higher score means more diabetes among your relatives), family history and weekly physical activity — a superset of the classic Pima Indians diabetes feature set.",
         },
         {
           heading: "Why the pre-diabetes band matters",
@@ -61,16 +61,14 @@ function DiabetesPage() {
       modelNote="Scan your blood report first to fill the OCR fields, then complete lifestyle and history questions before running the model."
       ocr={{
         title: "Scan your blood sugar report",
-        hint: "Fasting glucose, HbA1c, serum insulin and diastolic blood pressure are extracted from the report and dropped into the form for review.",
+        hint: "Fasting glucose, serum insulin and diastolic blood pressure are extracted from the report and dropped into the form for review.",
         sampleFields: [
           { label: "Fasting glucose", value: "126" },
-          { label: "HbA1c", value: "6.1" },
           { label: "Serum insulin", value: "102" },
           { label: "Diastolic BP", value: "82" },
         ],
         mapToValues: {
           "Fasting glucose": "glucose",
-          HbA1c: "hba1c",
           "Serum insulin": "insulin",
           "Diastolic BP": "bloodPressure",
         },
