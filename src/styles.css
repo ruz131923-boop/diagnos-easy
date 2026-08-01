@@ -244,6 +244,26 @@
   }
 }
 
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes wiggle-soft {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
 @utility animate-hero-zoom {
   animation: hero-zoom-out 18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -262,6 +282,37 @@
 
 @utility animate-grow-bar {
   animation: grow-bar 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-float {
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+@utility animate-wiggle {
+  animation: wiggle-soft 4s ease-in-out infinite;
+}
+
+@utility hover-pop {
+  transition:
+    transform var(--transition-calm),
+    box-shadow var(--transition-calm),
+    color 250ms ease;
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@utility link-slide {
+  display: inline-block;
+  transition:
+    transform var(--transition-calm),
+    color 250ms ease;
+  &:hover {
+    transform: translateX(4px);
+  }
 }
 
 @utility card-lift {
