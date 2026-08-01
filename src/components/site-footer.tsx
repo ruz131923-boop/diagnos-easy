@@ -65,7 +65,7 @@ export function SiteFooter() {
                   <li key={link.label + link.to}>
                     <Link
                       to={link.to}
-                      className="text-sm text-muted-foreground transition-colors duration-300 hover:text-primary"
+                      className="link-slide text-sm text-muted-foreground hover:text-primary"
                     >
                       {link.label}
                     </Link>
@@ -84,7 +84,7 @@ export function SiteFooter() {
                 <li key={link.label + link.to}>
                   <Link
                     to={link.to}
-                    className="text-sm text-muted-foreground transition-colors duration-300 hover:text-primary"
+                    className="link-slide text-sm text-muted-foreground hover:text-primary"
                   >
                     {link.label}
                   </Link>
