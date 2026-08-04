@@ -57,6 +57,12 @@ export const HEART_FIELDS: FieldDef[] = [
   { name: "age", label: "Age (years)", type: "number", placeholder: "54", min: 1, max: 120, step: 1 },
   { name: "sex", label: "Sex", type: "select", options: ["Female", "Male"] },
   {
+    name: "chestPain",
+    label: "Chest pain type",
+    type: "select",
+    options: ["Typical angina", "Atypical angina", "Non-anginal pain", "No chest pain"],
+  },
+  {
     name: "restingBp",
     label: "Resting blood pressure (mm Hg)",
     type: "number",
@@ -67,7 +73,7 @@ export const HEART_FIELDS: FieldDef[] = [
   },
   {
     name: "cholesterol",
-    label: "Total cholesterol (mg/dL)",
+    label: "Serum cholesterol (mg/dL)",
     type: "number",
     placeholder: "228",
     fromOcr: true,
@@ -75,40 +81,72 @@ export const HEART_FIELDS: FieldDef[] = [
     max: 600,
   },
   {
-    name: "maxHeartRate",
-    label: "Highest heart rate reached (beats per minute)",
-    type: "number",
-    placeholder: "148",
-    min: 50,
-    max: 230,
-  },
-  {
-    name: "chestPain",
-    label: "Chest pain type",
-    type: "select",
-    options: ["Typical angina", "Atypical angina", "Non-anginal pain", "Asymptomatic"],
-  },
-  {
     name: "fastingBloodSugar",
-    label: "Fasting blood sugar > 120 mg/dL",
+    label: "Fasting blood sugar higher than 120 mg/dL",
     type: "select",
     options: ["No", "Yes"],
     fromOcr: true,
   },
   {
+    name: "restEcg",
+    label: "Resting electrocardiogram result",
+    hint: "Printed on your ECG sheet",
+    type: "select",
+    options: [
+      "Normal",
+      "ST-T wave abnormality",
+      "Left ventricular enlargement (hypertrophy)",
+    ],
+    fromOcr: true,
+  },
+  {
+    name: "maxHeartRate",
+    label: "Maximum heart rate reached during exercise (beats per minute)",
+    type: "number",
+    placeholder: "148",
+    fromOcr: true,
+    min: 50,
+    max: 230,
+    step: 1,
+  },
+  {
     name: "exerciseAngina",
-    label: "Exercise-induced angina",
+    label: "Chest pain (angina) brought on by exercise",
     type: "select",
     options: ["No", "Yes"],
   },
   {
     name: "stDepression",
-    label: "ST depression (oldpeak)",
+    label: "ST segment depression after exercise (mm)",
+    hint: "Reported as “oldpeak” on some stress-test sheets",
     type: "number",
     placeholder: "1.2",
     fromOcr: true,
     min: 0,
-    max: 10,
+    max: 7,
+  },
+  {
+    name: "stSlope",
+    label: "Slope of the ST segment during peak exercise",
+    type: "select",
+    options: ["Upward sloping", "Flat", "Downward sloping"],
+    fromOcr: true,
+  },
+  {
+    name: "majorVessels",
+    label: "Number of major blood vessels seen as narrowed on angiogram",
+    hint: "0 to 3",
+    type: "number",
+    placeholder: "0",
+    min: 0,
+    max: 3,
+    step: 1,
+  },
+  {
+    name: "thalassemia",
+    label: "Thalassemia blood test result",
+    type: "select",
+    options: ["Normal", "Fixed defect", "Reversible defect"],
   },
   { name: "smoker", label: "Do you smoke at the moment?", type: "select", options: ["No", "Yes"] },
 ];
@@ -119,6 +157,7 @@ export function predictHeart(v: Values): PredictionOutcome {
   const chol = num(v.cholesterol);
   const hr = num(v.maxHeartRate);
   const oldpeak = num(v.stDepression);
+  const vessels = num(v.majorVessels);
 
   const ageScore = (age - 30) * 0.9;
   const bpScore = (bp - 110) * 0.55;
@@ -129,6 +168,12 @@ export function predictHeart(v: Values): PredictionOutcome {
   const painScore = v.chestPain === "Typical angina" ? 12 : v.chestPain === "Atypical angina" ? 7 : 2;
   const sugarScore = v.fastingBloodSugar === "Yes" ? 6 : 0;
   const stScore = oldpeak * 7;
+  const ecgScore = v.restEcg === "Normal" ? 0 : v.restEcg ? 7 : 0;
+  const slopeScore =
+    v.stSlope === "Downward sloping" ? 12 : v.stSlope === "Flat" ? 7 : 0;
+  const vesselScore = vessels * 8;
+  const thalScore =
+    v.thalassemia === "Reversible defect" ? 11 : v.thalassemia === "Fixed defect" ? 7 : 0;
 
   const score =
     ageScore * 0.5 +
@@ -139,7 +184,11 @@ export function predictHeart(v: Values): PredictionOutcome {
     smokeScore +
     painScore +
     sugarScore +
-    stScore;
+    stScore +
+    ecgScore +
+    slopeScore +
+    vesselScore +
+    thalScore;
 
   return buildOutcome(
     score,
@@ -165,7 +214,9 @@ export function predictHeart(v: Values): PredictionOutcome {
       { label: "Cholesterol", weight: cholScore * 2.4 },
       { label: "Age", weight: ageScore * 1.2 },
       { label: "Exercise response", weight: hrScore * 1.4 + anginaScore * 2 },
-      { label: "Lifestyle (smoking)", weight: smokeScore * 4 },
+      { label: "Stress-test findings", weight: (stScore + slopeScore + ecgScore) * 1.2 },
+      { label: "Narrowed blood vessels", weight: (vesselScore + thalScore) * 1.6 },
+      { label: "Smoking", weight: smokeScore * 4 },
     ],
     {
       low: [
@@ -191,6 +242,16 @@ export function predictHeart(v: Values): PredictionOutcome {
 export const DIABETES_FIELDS: FieldDef[] = [
   { name: "age", label: "Age (years)", type: "number", placeholder: "42", min: 1, max: 120, step: 1 },
   {
+    name: "pregnancies",
+    label: "Number of pregnancies",
+    hint: "Enter 0 if none, or if this does not apply to you",
+    type: "number",
+    placeholder: "0",
+    min: 0,
+    max: 20,
+    step: 1,
+  },
+  {
     name: "glucose",
     label: "Fasting glucose (mg/dL)",
     type: "number",
@@ -198,24 +259,6 @@ export const DIABETES_FIELDS: FieldDef[] = [
     fromOcr: true,
     min: 40,
     max: 500,
-  },
-  {
-    name: "dpf",
-    label: "Diabetes pedigree function",
-    type: "number",
-    placeholder: "0.47",
-    min: 0.05,
-    max: 2.5,
-  },
-  { name: "bmi", label: "BMI (kg/m²)", type: "number", placeholder: "27.4", min: 10, max: 70 },
-  {
-    name: "insulin",
-    label: "Serum insulin (µU/mL)",
-    type: "number",
-    placeholder: "94",
-    fromOcr: true,
-    min: 1,
-    max: 900,
   },
   {
     name: "bloodPressure",
@@ -227,13 +270,33 @@ export const DIABETES_FIELDS: FieldDef[] = [
     max: 150,
   },
   {
-    name: "pregnancies",
-    label: "Number of pregnancies",
+    name: "skinThickness",
+    label: "Triceps skin fold thickness (mm)",
+    hint: "Skin thickness measured at the back of the upper arm",
     type: "number",
-    placeholder: "0",
-    min: 0,
-    max: 20,
-    step: 1,
+    placeholder: "24",
+    fromOcr: true,
+    min: 5,
+    max: 100,
+  },
+  {
+    name: "insulin",
+    label: "Serum insulin (µU/mL)",
+    type: "number",
+    placeholder: "94",
+    fromOcr: true,
+    min: 1,
+    max: 900,
+  },
+  { name: "bmi", label: "Body mass index (kg/m²)", type: "number", placeholder: "27.4", min: 10, max: 70 },
+  {
+    name: "dpf",
+    label: "Diabetes pedigree function",
+    hint: "Family-history score, usually between 0.05 and 2.5",
+    type: "number",
+    placeholder: "0.47",
+    min: 0.05,
+    max: 2.5,
   },
   {
     name: "familyHistory",
@@ -255,18 +318,27 @@ export function predictDiabetes(v: Values): PredictionOutcome {
   const bmi = num(v.bmi);
   const insulin = num(v.insulin);
   const age = num(v.age);
+  const skin = num(v.skinThickness);
 
   const glucoseScore = (glucose - 90) * 0.7;
   const dpfScore = (dpf - 0.35) * 34;
   const bmiScore = (bmi - 22) * 1.9;
   const insulinScore = (insulin - 80) * 0.09;
+  const skinScore = (skin - 20) * 0.35;
   const ageScore = (age - 28) * 0.4;
   const familyScore = v.familyHistory === "Yes" ? 12 : 0;
   const activityScore =
     v.activity === "Rarely or never" ? 11 : v.activity === "Sometimes (1 to 3 days)" ? 5 : 0;
 
   const score =
-    glucoseScore + dpfScore + bmiScore + insulinScore + ageScore + familyScore + activityScore;
+    glucoseScore +
+    dpfScore +
+    bmiScore +
+    insulinScore +
+    skinScore +
+    ageScore +
+    familyScore +
+    activityScore;
 
   return buildOutcome(
     score,
@@ -292,6 +364,7 @@ export function predictDiabetes(v: Values): PredictionOutcome {
       { label: "Fasting glucose", weight: glucoseScore * 1.7 },
       { label: "BMI", weight: bmiScore * 2.2 },
       { label: "Insulin response", weight: insulinScore * 3 },
+      { label: "Skin fold thickness", weight: skinScore * 3 },
       { label: "Family history & exercise", weight: (familyScore + activityScore) * 2.2 },
     ],
     {
@@ -323,7 +396,15 @@ export const BREAST_FIELDS: FieldDef[] = [
   { name: "smoothnessMean", label: "Mean smoothness", type: "number", placeholder: "0.096", min: 0, max: 1 },
   { name: "compactnessMean", label: "Mean compactness", type: "number", placeholder: "0.104", min: 0, max: 1 },
   { name: "concavityMean", label: "Mean concavity", type: "number", placeholder: "0.089", min: 0, max: 1 },
-  { name: "symmetryMean", label: "Mean symmetry", type: "number", placeholder: "0.181", min: 0, max: 1 },
+  {
+    name: "concavePointsMean",
+    label: "Mean number of concave points",
+    hint: "Concave points on the nucleus outline",
+    type: "number",
+    placeholder: "0.048",
+    min: 0,
+    max: 1,
+  },
   {
     name: "familyHistory",
     label: "Has anyone in your family had breast cancer?",
@@ -344,17 +425,26 @@ export function predictBreast(v: Values): PredictionOutcome {
   const area = num(v.areaMean);
   const concavity = num(v.concavityMean);
   const compactness = num(v.compactnessMean);
+  const concavePoints = num(v.concavePointsMean);
 
   const radiusScore = (radius - 12) * 5.5;
   const textureScore = (texture - 17) * 2.2;
   const areaScore = (area - 500) * 0.05;
   const concavityScore = concavity * 160;
   const compactScore = compactness * 90;
+  const pointsScore = concavePoints * 150;
   const historyScore = v.familyHistory === "Yes" ? 9 : 0;
   const lumpScore = v.lump === "Yes" ? 10 : 0;
 
   const score =
-    radiusScore + textureScore + areaScore + concavityScore + compactScore + historyScore + lumpScore;
+    radiusScore +
+    textureScore +
+    areaScore +
+    concavityScore +
+    compactScore +
+    pointsScore +
+    historyScore +
+    lumpScore;
 
   return buildOutcome(
     score,
@@ -378,6 +468,7 @@ export function predictBreast(v: Values): PredictionOutcome {
     [
       { label: "Nucleus radius", weight: radiusScore * 1.6 },
       { label: "Concavity", weight: concavityScore * 1.4 },
+      { label: "Concave points", weight: pointsScore * 1.4 },
       { label: "Compactness", weight: compactScore * 1.6 },
       { label: "Texture", weight: textureScore * 2.2 },
       { label: "Clinical history", weight: (historyScore + lumpScore) * 2.6 },
@@ -404,11 +495,178 @@ export function predictBreast(v: Values): PredictionOutcome {
 
 export const PARKINSONS_FIELDS: FieldDef[] = [
   { name: "age", label: "Age (years)", type: "number", placeholder: "62", min: 1, max: 120, step: 1 },
-  { name: "fo", label: "Average voice frequency (Hz)", type: "number", placeholder: "152", min: 50, max: 400 },
-  { name: "jitter", label: "Jitter (%)", type: "number", placeholder: "0.62", min: 0, max: 20 },
-  { name: "shimmer", label: "Shimmer (dB)", type: "number", placeholder: "0.31", min: 0, max: 20 },
-  { name: "hnr", label: "Harmonic-to-noise ratio (dB)", type: "number", placeholder: "21.4", min: 0, max: 45 },
-  { name: "rpde", label: "RPDE", type: "number", placeholder: "0.52", min: 0, max: 1 },
+  {
+    name: "fo",
+    label: "Average vocal fundamental frequency (Hz)",
+    hint: "Average pitch of the sustained vowel",
+    type: "number",
+    placeholder: "152",
+    min: 50,
+    max: 300,
+  },
+  {
+    name: "fhi",
+    label: "Highest vocal fundamental frequency (Hz)",
+    type: "number",
+    placeholder: "197",
+    min: 60,
+    max: 600,
+  },
+  {
+    name: "flo",
+    label: "Lowest vocal fundamental frequency (Hz)",
+    type: "number",
+    placeholder: "116",
+    min: 50,
+    max: 300,
+  },
+  {
+    name: "jitterPercent",
+    label: "Jitter — pitch variation (%)",
+    type: "number",
+    placeholder: "0.62",
+    min: 0,
+    max: 5,
+  },
+  {
+    name: "jitterAbs",
+    label: "Jitter — absolute pitch variation (seconds)",
+    hint: "A very small value, for example 0.00004",
+    type: "number",
+    placeholder: "0.00004",
+    min: 0,
+    max: 0.001,
+  },
+  {
+    name: "rap",
+    label: "Relative average pitch disturbance",
+    type: "number",
+    placeholder: "0.0033",
+    min: 0,
+    max: 0.05,
+  },
+  {
+    name: "ppq",
+    label: "Five-point pitch disturbance quotient",
+    type: "number",
+    placeholder: "0.0034",
+    min: 0,
+    max: 0.05,
+  },
+  {
+    name: "ddp",
+    label: "Average difference between consecutive pitch cycles",
+    type: "number",
+    placeholder: "0.0099",
+    min: 0,
+    max: 0.15,
+  },
+  {
+    name: "shimmer",
+    label: "Shimmer — loudness variation (ratio)",
+    type: "number",
+    placeholder: "0.029",
+    min: 0,
+    max: 0.3,
+  },
+  {
+    name: "shimmerDb",
+    label: "Shimmer — loudness variation (decibels)",
+    type: "number",
+    placeholder: "0.31",
+    min: 0,
+    max: 3,
+  },
+  {
+    name: "apq3",
+    label: "Three-point loudness disturbance quotient",
+    type: "number",
+    placeholder: "0.015",
+    min: 0,
+    max: 0.2,
+  },
+  {
+    name: "apq5",
+    label: "Five-point loudness disturbance quotient",
+    type: "number",
+    placeholder: "0.018",
+    min: 0,
+    max: 0.2,
+  },
+  {
+    name: "dda",
+    label: "Average absolute difference between loudness cycles",
+    type: "number",
+    placeholder: "0.045",
+    min: 0,
+    max: 0.2,
+  },
+  {
+    name: "nhr",
+    label: "Noise-to-harmonics ratio",
+    type: "number",
+    placeholder: "0.024",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "hnr",
+    label: "Harmonics-to-noise ratio (decibels)",
+    type: "number",
+    placeholder: "21.4",
+    min: 0,
+    max: 40,
+  },
+  {
+    name: "rpde",
+    label: "Recurrence period density entropy",
+    hint: "A measure of how repeatable the voice signal is",
+    type: "number",
+    placeholder: "0.52",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "dfa",
+    label: "Signal fractal scaling (detrended fluctuation analysis)",
+    type: "number",
+    placeholder: "0.72",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "spread1",
+    label: "First measure of pitch variation (spread 1)",
+    hint: "Reported as a negative number — enter it without the minus sign",
+    type: "number",
+    placeholder: "5.68",
+    min: 0,
+    max: 10,
+  },
+  {
+    name: "spread2",
+    label: "Second measure of pitch variation (spread 2)",
+    type: "number",
+    placeholder: "0.23",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "d2",
+    label: "Signal complexity (correlation dimension)",
+    type: "number",
+    placeholder: "2.3",
+    min: 0,
+    max: 5,
+  },
+  {
+    name: "ppe",
+    label: "Pitch period entropy",
+    type: "number",
+    placeholder: "0.28",
+    min: 0,
+    max: 1,
+  },
   {
     name: "tremor",
     label: "Shaking in your hands while resting",
@@ -438,22 +696,37 @@ export const PARKINSONS_FIELDS: FieldDef[] = [
 const sev = (v: string | undefined) => (v === "Strong" ? 13 : v === "Mild" ? 6 : 0);
 
 export function predictParkinsons(v: Values): PredictionOutcome {
-  const jitter = num(v.jitter);
+  const jitter = num(v.jitterPercent);
   const shimmer = num(v.shimmer);
+  const shimmerDb = num(v.shimmerDb);
+  const nhr = num(v.nhr);
   const hnr = num(v.hnr);
   const rpde = num(v.rpde);
+  const dfa = num(v.dfa);
+  const ppe = num(v.ppe);
+  const spread1 = num(v.spread1);
   const age = num(v.age);
 
   const jitterScore = jitter * 22;
-  const shimmerScore = shimmer * 34;
+  const shimmerScore = shimmer * 220 + shimmerDb * 12;
+  const noiseScore = nhr * 40;
   const hnrScore = hnr > 0 ? (24 - hnr) * 2.1 : 0;
-  const rpdeScore = rpde * 26;
+  const rpdeScore = rpde * 26 + dfa * 8;
+  const spreadScore = spread1 * 1.6 + ppe * 20;
   const ageScore = (age - 45) * 0.5;
   const motorScore = sev(v.tremor) + sev(v.rigidity) + sev(v.bradykinesia);
   const writingScore = v.handwriting === "Yes" ? 7 : 0;
 
   const score =
-    jitterScore + shimmerScore + hnrScore + rpdeScore + ageScore + motorScore + writingScore;
+    jitterScore +
+    shimmerScore +
+    noiseScore +
+    hnrScore +
+    rpdeScore +
+    spreadScore +
+    ageScore +
+    motorScore +
+    writingScore;
 
   return buildOutcome(
     score,
@@ -475,11 +748,12 @@ export function predictParkinsons(v: Values): PredictionOutcome {
       },
     },
     [
-      { label: "Voice jitter", weight: jitterScore * 2.2 },
-      { label: "Voice shimmer", weight: shimmerScore * 2 },
-      { label: "Harmonic-to-noise ratio", weight: hnrScore * 2.2 },
+      { label: "Pitch variation (jitter)", weight: jitterScore * 2.2 },
+      { label: "Loudness variation (shimmer)", weight: shimmerScore * 1.6 },
+      { label: "Breathy noise in the voice", weight: (noiseScore + hnrScore) * 1.8 },
+      { label: "Pitch spread and entropy", weight: spreadScore * 1.8 },
       { label: "Motor symptoms", weight: motorScore * 2.4 },
-      { label: "Voice signal irregularity (RPDE)", weight: rpdeScore * 2.2 },
+      { label: "Voice signal irregularity", weight: rpdeScore * 2.2 },
     ],
     {
       low: [

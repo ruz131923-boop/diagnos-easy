@@ -40,7 +40,7 @@ function HeartPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Age, sex, resting blood pressure, total cholesterol, fasting blood sugar, chest pain character, maximum heart rate under exertion, exercise-induced angina and ST depression. Each contributes a weighted share of the final probability.",
+          body: "Age, sex, chest pain type, resting blood pressure, serum cholesterol, fasting blood sugar, the resting electrocardiogram result, maximum heart rate reached during exercise, exercise-related chest pain, ST segment depression and slope, the number of narrowed major blood vessels and the thalassemia blood test result. Each contributes a weighted share of the final probability.",
         },
         {
           heading: "Why OCR helps here",
@@ -61,17 +61,21 @@ function HeartPage() {
       modelNote="Values marked OCR are filled automatically when you scan a report. Review every number against the printed sheet, complete the remaining fields, then run the prediction."
       ocr={{
         title: "Scan your lipid panel or ECG report",
-        hint: "We read blood pressure, cholesterol, fasting blood sugar and ST depression straight from the report so you do not have to retype them.",
+        hint: "We read blood pressure, cholesterol, fasting blood sugar, the resting ECG result, your peak exercise heart rate and the ST segment findings straight from the report so you do not have to retype them.",
         sampleFields: [
           { label: "Resting blood pressure", value: "134" },
-          { label: "Total cholesterol", value: "236" },
+          { label: "Serum cholesterol", value: "236" },
           { label: "Fasting blood sugar", value: "128" },
-          { label: "ST depression", value: "1.4" },
+          { label: "Resting ECG result", value: "ST-T wave abnormality" },
+          { label: "Maximum heart rate", value: "146" },
+          { label: "ST segment depression", value: "1.4" },
+          { label: "ST segment slope", value: "Flat" },
         ],
         mapToValues: {
           "Resting blood pressure": "restingBp",
-          "Total cholesterol": "cholesterol",
-          "ST depression": "stDepression",
+          "Serum cholesterol": "cholesterol",
+          "Maximum heart rate": "maxHeartRate",
+          "ST segment depression": "stDepression",
         },
       }}
       fields={HEART_FIELDS}

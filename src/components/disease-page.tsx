@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AuthGate } from "@/components/auth-gate";
 import { OcrUpload } from "@/components/ocr-upload";
 import { PredictionForm } from "@/components/prediction-form";
 import type { PredictionOutcome } from "@/components/prediction-result";
+import { useAuth } from "@/lib/auth";
 import type { FieldDef, Values } from "@/lib/prediction";
 
 export type DiseasePageProps = {
@@ -43,6 +44,37 @@ export function DiseasePage({
   predict,
 }: DiseasePageProps) {
   const [values, setValues] = useState<Values>({});
+  const { user } = useAuth();
+
+  // Age, sex and BMI already exist in the registered profile, so fill them in once.
+  useEffect(() => {
+    if (!user) return;
+    const names = new Set(fields.map((f) => f.name));
+    const prefill: Values = {};
+
+    if (names.has("age") && user.dateOfBirth) {
+      const dob = new Date(user.dateOfBirth);
+      if (!Number.isNaN(dob.getTime())) {
+        const now = new Date();
+        let age = now.getFullYear() - dob.getFullYear();
+        const monthDiff = now.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) age -= 1;
+        if (age > 0 && age < 120) prefill.age = String(age);
+      }
+    }
+    if (names.has("sex") && (user.gender === "Female" || user.gender === "Male")) {
+      prefill.sex = user.gender;
+    }
+    if (names.has("bmi")) {
+      const h = Number.parseFloat(user.heightCm) / 100;
+      const w = Number.parseFloat(user.weightKg);
+      if (h > 0 && w > 0) prefill.bmi = (w / (h * h)).toFixed(1);
+    }
+
+    if (Object.keys(prefill).length) {
+      setValues((prev) => ({ ...prefill, ...prev }));
+    }
+  }, [user, fields]);
 
   return (
     <>
@@ -110,6 +142,12 @@ export function DiseasePage({
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {modelNote}
             </p>
+            {user ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Details we already hold from your profile — such as age, sex and body mass index —
+                are filled in for you. You can still edit them.
+              </p>
+            ) : null}
             <div className="mt-5">
               <AuthGate feature="This prediction model">
                 <PredictionForm

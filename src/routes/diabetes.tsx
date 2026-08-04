@@ -40,7 +40,7 @@ function DiabetesPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Fasting glucose, serum insulin, diastolic blood pressure, BMI, age, pregnancies, the diabetes pedigree function (usually between 0.05 and 2.5, where a higher score means more diabetes among your relatives), family history and weekly physical activity — a superset of the classic Pima Indians diabetes feature set.",
+          body: "Age, number of pregnancies, fasting glucose, diastolic blood pressure, triceps skin fold thickness, serum insulin, body mass index and the diabetes pedigree function (usually between 0.05 and 2.5, where a higher score means more diabetes among your relatives), plus family history and weekly physical activity.",
         },
         {
           heading: "Why the pre-diabetes band matters",
@@ -61,16 +61,18 @@ function DiabetesPage() {
       modelNote="Scan your blood report first to fill the OCR fields, then complete lifestyle and history questions before running the model."
       ocr={{
         title: "Scan your blood sugar report",
-        hint: "Fasting glucose, serum insulin and diastolic blood pressure are extracted from the report and dropped into the form for review.",
+        hint: "Fasting glucose, serum insulin, diastolic blood pressure and skin fold thickness are extracted from the report and dropped into the form for review.",
         sampleFields: [
           { label: "Fasting glucose", value: "126" },
           { label: "Serum insulin", value: "102" },
-          { label: "Diastolic BP", value: "82" },
+          { label: "Diastolic blood pressure", value: "82" },
+          { label: "Triceps skin fold thickness", value: "26" },
         ],
         mapToValues: {
           "Fasting glucose": "glucose",
           "Serum insulin": "insulin",
-          "Diastolic BP": "bloodPressure",
+          "Diastolic blood pressure": "bloodPressure",
+          "Triceps skin fold thickness": "skinThickness",
         },
       }}
       fields={DIABETES_FIELDS}

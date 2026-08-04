@@ -33,6 +33,8 @@ type AuthState = {
   logout: () => void;
   accountExists: (username: string) => boolean;
   resetPassword: (username: string, password: string) => { ok: boolean; error?: string };
+  /** Removes the stored account from this browser so a fresh registration is possible. */
+  deleteAccount: () => void;
 };
 
 const ACCOUNTS_KEY = "vitalsense.accounts";
@@ -133,6 +135,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const deleteAccount = useCallback(() => {
+    setUser(null);
+    setAccounts([]);
+    try {
+      window.localStorage.removeItem(SESSION_KEY);
+      window.localStorage.removeItem(ACCOUNTS_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const accountExists = useCallback<AuthState["accountExists"]>(
     (username) =>
       readAccounts().some((a) => a.username.toLowerCase() === username.toLowerCase().trim()),
@@ -164,8 +177,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       accountExists,
       resetPassword,
+      deleteAccount,
     }),
-    [ready, user, accounts, register, login, logout, accountExists, resetPassword],
+    [ready, user, accounts, register, login, logout, accountExists, resetPassword, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
