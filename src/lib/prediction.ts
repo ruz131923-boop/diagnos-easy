@@ -495,11 +495,178 @@ export function predictBreast(v: Values): PredictionOutcome {
 
 export const PARKINSONS_FIELDS: FieldDef[] = [
   { name: "age", label: "Age (years)", type: "number", placeholder: "62", min: 1, max: 120, step: 1 },
-  { name: "fo", label: "Average voice frequency (Hz)", type: "number", placeholder: "152", min: 50, max: 400 },
-  { name: "jitter", label: "Jitter (%)", type: "number", placeholder: "0.62", min: 0, max: 20 },
-  { name: "shimmer", label: "Shimmer (dB)", type: "number", placeholder: "0.31", min: 0, max: 20 },
-  { name: "hnr", label: "Harmonic-to-noise ratio (dB)", type: "number", placeholder: "21.4", min: 0, max: 45 },
-  { name: "rpde", label: "RPDE", type: "number", placeholder: "0.52", min: 0, max: 1 },
+  {
+    name: "fo",
+    label: "Average vocal fundamental frequency (Hz)",
+    hint: "Average pitch of the sustained vowel",
+    type: "number",
+    placeholder: "152",
+    min: 50,
+    max: 300,
+  },
+  {
+    name: "fhi",
+    label: "Highest vocal fundamental frequency (Hz)",
+    type: "number",
+    placeholder: "197",
+    min: 60,
+    max: 600,
+  },
+  {
+    name: "flo",
+    label: "Lowest vocal fundamental frequency (Hz)",
+    type: "number",
+    placeholder: "116",
+    min: 50,
+    max: 300,
+  },
+  {
+    name: "jitterPercent",
+    label: "Jitter — pitch variation (%)",
+    type: "number",
+    placeholder: "0.62",
+    min: 0,
+    max: 5,
+  },
+  {
+    name: "jitterAbs",
+    label: "Jitter — absolute pitch variation (seconds)",
+    hint: "A very small value, for example 0.00004",
+    type: "number",
+    placeholder: "0.00004",
+    min: 0,
+    max: 0.001,
+  },
+  {
+    name: "rap",
+    label: "Relative average pitch disturbance",
+    type: "number",
+    placeholder: "0.0033",
+    min: 0,
+    max: 0.05,
+  },
+  {
+    name: "ppq",
+    label: "Five-point pitch disturbance quotient",
+    type: "number",
+    placeholder: "0.0034",
+    min: 0,
+    max: 0.05,
+  },
+  {
+    name: "ddp",
+    label: "Average difference between consecutive pitch cycles",
+    type: "number",
+    placeholder: "0.0099",
+    min: 0,
+    max: 0.15,
+  },
+  {
+    name: "shimmer",
+    label: "Shimmer — loudness variation (ratio)",
+    type: "number",
+    placeholder: "0.029",
+    min: 0,
+    max: 0.3,
+  },
+  {
+    name: "shimmerDb",
+    label: "Shimmer — loudness variation (decibels)",
+    type: "number",
+    placeholder: "0.31",
+    min: 0,
+    max: 3,
+  },
+  {
+    name: "apq3",
+    label: "Three-point loudness disturbance quotient",
+    type: "number",
+    placeholder: "0.015",
+    min: 0,
+    max: 0.2,
+  },
+  {
+    name: "apq5",
+    label: "Five-point loudness disturbance quotient",
+    type: "number",
+    placeholder: "0.018",
+    min: 0,
+    max: 0.2,
+  },
+  {
+    name: "dda",
+    label: "Average absolute difference between loudness cycles",
+    type: "number",
+    placeholder: "0.045",
+    min: 0,
+    max: 0.2,
+  },
+  {
+    name: "nhr",
+    label: "Noise-to-harmonics ratio",
+    type: "number",
+    placeholder: "0.024",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "hnr",
+    label: "Harmonics-to-noise ratio (decibels)",
+    type: "number",
+    placeholder: "21.4",
+    min: 0,
+    max: 40,
+  },
+  {
+    name: "rpde",
+    label: "Recurrence period density entropy",
+    hint: "A measure of how repeatable the voice signal is",
+    type: "number",
+    placeholder: "0.52",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "dfa",
+    label: "Signal fractal scaling (detrended fluctuation analysis)",
+    type: "number",
+    placeholder: "0.72",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "spread1",
+    label: "First measure of pitch variation (spread 1)",
+    hint: "Reported as a negative number — enter it without the minus sign",
+    type: "number",
+    placeholder: "5.68",
+    min: 0,
+    max: 10,
+  },
+  {
+    name: "spread2",
+    label: "Second measure of pitch variation (spread 2)",
+    type: "number",
+    placeholder: "0.23",
+    min: 0,
+    max: 1,
+  },
+  {
+    name: "d2",
+    label: "Signal complexity (correlation dimension)",
+    type: "number",
+    placeholder: "2.3",
+    min: 0,
+    max: 5,
+  },
+  {
+    name: "ppe",
+    label: "Pitch period entropy",
+    type: "number",
+    placeholder: "0.28",
+    min: 0,
+    max: 1,
+  },
   {
     name: "tremor",
     label: "Shaking in your hands while resting",
@@ -529,22 +696,37 @@ export const PARKINSONS_FIELDS: FieldDef[] = [
 const sev = (v: string | undefined) => (v === "Strong" ? 13 : v === "Mild" ? 6 : 0);
 
 export function predictParkinsons(v: Values): PredictionOutcome {
-  const jitter = num(v.jitter);
+  const jitter = num(v.jitterPercent);
   const shimmer = num(v.shimmer);
+  const shimmerDb = num(v.shimmerDb);
+  const nhr = num(v.nhr);
   const hnr = num(v.hnr);
   const rpde = num(v.rpde);
+  const dfa = num(v.dfa);
+  const ppe = num(v.ppe);
+  const spread1 = num(v.spread1);
   const age = num(v.age);
 
   const jitterScore = jitter * 22;
-  const shimmerScore = shimmer * 34;
+  const shimmerScore = shimmer * 220 + shimmerDb * 12;
+  const noiseScore = nhr * 40;
   const hnrScore = hnr > 0 ? (24 - hnr) * 2.1 : 0;
-  const rpdeScore = rpde * 26;
+  const rpdeScore = rpde * 26 + dfa * 8;
+  const spreadScore = spread1 * 1.6 + ppe * 20;
   const ageScore = (age - 45) * 0.5;
   const motorScore = sev(v.tremor) + sev(v.rigidity) + sev(v.bradykinesia);
   const writingScore = v.handwriting === "Yes" ? 7 : 0;
 
   const score =
-    jitterScore + shimmerScore + hnrScore + rpdeScore + ageScore + motorScore + writingScore;
+    jitterScore +
+    shimmerScore +
+    noiseScore +
+    hnrScore +
+    rpdeScore +
+    spreadScore +
+    ageScore +
+    motorScore +
+    writingScore;
 
   return buildOutcome(
     score,
@@ -566,11 +748,12 @@ export function predictParkinsons(v: Values): PredictionOutcome {
       },
     },
     [
-      { label: "Voice jitter", weight: jitterScore * 2.2 },
-      { label: "Voice shimmer", weight: shimmerScore * 2 },
-      { label: "Harmonic-to-noise ratio", weight: hnrScore * 2.2 },
+      { label: "Pitch variation (jitter)", weight: jitterScore * 2.2 },
+      { label: "Loudness variation (shimmer)", weight: shimmerScore * 1.6 },
+      { label: "Breathy noise in the voice", weight: (noiseScore + hnrScore) * 1.8 },
+      { label: "Pitch spread and entropy", weight: spreadScore * 1.8 },
       { label: "Motor symptoms", weight: motorScore * 2.4 },
-      { label: "Voice signal irregularity (RPDE)", weight: rpdeScore * 2.2 },
+      { label: "Voice signal irregularity", weight: rpdeScore * 2.2 },
     ],
     {
       low: [
