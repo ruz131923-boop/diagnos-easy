@@ -57,6 +57,12 @@ export const HEART_FIELDS: FieldDef[] = [
   { name: "age", label: "Age (years)", type: "number", placeholder: "54", min: 1, max: 120, step: 1 },
   { name: "sex", label: "Sex", type: "select", options: ["Female", "Male"] },
   {
+    name: "chestPain",
+    label: "Chest pain type",
+    type: "select",
+    options: ["Typical angina", "Atypical angina", "Non-anginal pain", "No chest pain"],
+  },
+  {
     name: "restingBp",
     label: "Resting blood pressure (mm Hg)",
     type: "number",
@@ -67,7 +73,7 @@ export const HEART_FIELDS: FieldDef[] = [
   },
   {
     name: "cholesterol",
-    label: "Total cholesterol (mg/dL)",
+    label: "Serum cholesterol (mg/dL)",
     type: "number",
     placeholder: "228",
     fromOcr: true,
@@ -75,40 +81,72 @@ export const HEART_FIELDS: FieldDef[] = [
     max: 600,
   },
   {
-    name: "maxHeartRate",
-    label: "Highest heart rate reached (beats per minute)",
-    type: "number",
-    placeholder: "148",
-    min: 50,
-    max: 230,
-  },
-  {
-    name: "chestPain",
-    label: "Chest pain type",
-    type: "select",
-    options: ["Typical angina", "Atypical angina", "Non-anginal pain", "Asymptomatic"],
-  },
-  {
     name: "fastingBloodSugar",
-    label: "Fasting blood sugar > 120 mg/dL",
+    label: "Fasting blood sugar higher than 120 mg/dL",
     type: "select",
     options: ["No", "Yes"],
     fromOcr: true,
   },
   {
+    name: "restEcg",
+    label: "Resting electrocardiogram result",
+    hint: "Printed on your ECG sheet",
+    type: "select",
+    options: [
+      "Normal",
+      "ST-T wave abnormality",
+      "Left ventricular enlargement (hypertrophy)",
+    ],
+    fromOcr: true,
+  },
+  {
+    name: "maxHeartRate",
+    label: "Maximum heart rate reached during exercise (beats per minute)",
+    type: "number",
+    placeholder: "148",
+    fromOcr: true,
+    min: 50,
+    max: 230,
+    step: 1,
+  },
+  {
     name: "exerciseAngina",
-    label: "Exercise-induced angina",
+    label: "Chest pain (angina) brought on by exercise",
     type: "select",
     options: ["No", "Yes"],
   },
   {
     name: "stDepression",
-    label: "ST depression (oldpeak)",
+    label: "ST segment depression after exercise (mm)",
+    hint: "Reported as “oldpeak” on some stress-test sheets",
     type: "number",
     placeholder: "1.2",
     fromOcr: true,
     min: 0,
-    max: 10,
+    max: 7,
+  },
+  {
+    name: "stSlope",
+    label: "Slope of the ST segment during peak exercise",
+    type: "select",
+    options: ["Upward sloping", "Flat", "Downward sloping"],
+    fromOcr: true,
+  },
+  {
+    name: "majorVessels",
+    label: "Number of major blood vessels seen as narrowed on angiogram",
+    hint: "0 to 3",
+    type: "number",
+    placeholder: "0",
+    min: 0,
+    max: 3,
+    step: 1,
+  },
+  {
+    name: "thalassemia",
+    label: "Thalassemia blood test result",
+    type: "select",
+    options: ["Normal", "Fixed defect", "Reversible defect"],
   },
   { name: "smoker", label: "Do you smoke at the moment?", type: "select", options: ["No", "Yes"] },
 ];
@@ -119,6 +157,7 @@ export function predictHeart(v: Values): PredictionOutcome {
   const chol = num(v.cholesterol);
   const hr = num(v.maxHeartRate);
   const oldpeak = num(v.stDepression);
+  const vessels = num(v.majorVessels);
 
   const ageScore = (age - 30) * 0.9;
   const bpScore = (bp - 110) * 0.55;
@@ -129,6 +168,12 @@ export function predictHeart(v: Values): PredictionOutcome {
   const painScore = v.chestPain === "Typical angina" ? 12 : v.chestPain === "Atypical angina" ? 7 : 2;
   const sugarScore = v.fastingBloodSugar === "Yes" ? 6 : 0;
   const stScore = oldpeak * 7;
+  const ecgScore = v.restEcg === "Normal" ? 0 : v.restEcg ? 7 : 0;
+  const slopeScore =
+    v.stSlope === "Downward sloping" ? 12 : v.stSlope === "Flat" ? 7 : 0;
+  const vesselScore = vessels * 8;
+  const thalScore =
+    v.thalassemia === "Reversible defect" ? 11 : v.thalassemia === "Fixed defect" ? 7 : 0;
 
   const score =
     ageScore * 0.5 +
@@ -139,7 +184,11 @@ export function predictHeart(v: Values): PredictionOutcome {
     smokeScore +
     painScore +
     sugarScore +
-    stScore;
+    stScore +
+    ecgScore +
+    slopeScore +
+    vesselScore +
+    thalScore;
 
   return buildOutcome(
     score,
@@ -165,7 +214,9 @@ export function predictHeart(v: Values): PredictionOutcome {
       { label: "Cholesterol", weight: cholScore * 2.4 },
       { label: "Age", weight: ageScore * 1.2 },
       { label: "Exercise response", weight: hrScore * 1.4 + anginaScore * 2 },
-      { label: "Lifestyle (smoking)", weight: smokeScore * 4 },
+      { label: "Stress-test findings", weight: (stScore + slopeScore + ecgScore) * 1.2 },
+      { label: "Narrowed blood vessels", weight: (vesselScore + thalScore) * 1.6 },
+      { label: "Smoking", weight: smokeScore * 4 },
     ],
     {
       low: [
