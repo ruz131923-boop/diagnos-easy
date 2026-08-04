@@ -425,17 +425,26 @@ export function predictBreast(v: Values): PredictionOutcome {
   const area = num(v.areaMean);
   const concavity = num(v.concavityMean);
   const compactness = num(v.compactnessMean);
+  const concavePoints = num(v.concavePointsMean);
 
   const radiusScore = (radius - 12) * 5.5;
   const textureScore = (texture - 17) * 2.2;
   const areaScore = (area - 500) * 0.05;
   const concavityScore = concavity * 160;
   const compactScore = compactness * 90;
+  const pointsScore = concavePoints * 150;
   const historyScore = v.familyHistory === "Yes" ? 9 : 0;
   const lumpScore = v.lump === "Yes" ? 10 : 0;
 
   const score =
-    radiusScore + textureScore + areaScore + concavityScore + compactScore + historyScore + lumpScore;
+    radiusScore +
+    textureScore +
+    areaScore +
+    concavityScore +
+    compactScore +
+    pointsScore +
+    historyScore +
+    lumpScore;
 
   return buildOutcome(
     score,
@@ -459,6 +468,7 @@ export function predictBreast(v: Values): PredictionOutcome {
     [
       { label: "Nucleus radius", weight: radiusScore * 1.6 },
       { label: "Concavity", weight: concavityScore * 1.4 },
+      { label: "Concave points", weight: pointsScore * 1.4 },
       { label: "Compactness", weight: compactScore * 1.6 },
       { label: "Texture", weight: textureScore * 2.2 },
       { label: "Clinical history", weight: (historyScore + lumpScore) * 2.6 },
