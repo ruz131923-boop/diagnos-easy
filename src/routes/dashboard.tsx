@@ -1,8 +1,10 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import { AuthGate } from "@/components/auth-gate";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { DISEASES } from "@/lib/site";
 
@@ -33,7 +35,9 @@ function bmiOf(heightCm: string, weightKg: string) {
 }
 
 function DashboardPage() {
-  const { user } = useAuth();
+  const { user, deleteAccount } = useAuth();
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <>
@@ -129,6 +133,42 @@ function DashboardPage() {
                 In this front-end prototype, results are shown immediately after each run and are not
                 stored.
               </p>
+
+              <section className="rounded-2xl border border-destructive/30 bg-heart-soft/40 p-6">
+                <h2 className="text-lg font-semibold text-foreground">Delete my account</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  This removes your saved profile from this device for good. You will be signed out,
+                  and you can then register again with fresh details.
+                </p>
+                {confirming ? (
+                  <div className="animate-rise mt-4 flex flex-wrap items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => {
+                        deleteAccount();
+                        navigate({ to: "/register" });
+                      }}
+                    >
+                      <Trash2 className="size-4" aria-hidden="true" />
+                      Yes, delete it permanently
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={() => setConfirming(false)}>
+                      Keep my account
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-4"
+                    onClick={() => setConfirming(true)}
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                    Delete my account
+                  </Button>
+                )}
+              </section>
             </div>
           ) : null}
         </AuthGate>

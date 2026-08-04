@@ -40,7 +40,7 @@ function BreastCancerPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Mean radius, texture, perimeter, area, smoothness, compactness, concavity and symmetry of the cell nuclei, together with family history and whether a lump has been felt.",
+          body: "Mean radius, texture, perimeter, area, smoothness, compactness, concavity and number of concave points of the cell nuclei, together with family history and whether a lump has been felt.",
         },
         {
           heading: "Where the numbers come from",
