@@ -101,6 +101,9 @@ export function PredictionForm({
                   </span>
                 ) : null}
               </Label>
+              {field.hint ? (
+                <p className="text-xs leading-relaxed text-muted-foreground">{field.hint}</p>
+              ) : null}
               {field.type === "select" ? (
                 <select
                   id={field.name}
