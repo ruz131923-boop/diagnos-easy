@@ -242,6 +242,16 @@ export function predictHeart(v: Values): PredictionOutcome {
 export const DIABETES_FIELDS: FieldDef[] = [
   { name: "age", label: "Age (years)", type: "number", placeholder: "42", min: 1, max: 120, step: 1 },
   {
+    name: "pregnancies",
+    label: "Number of pregnancies",
+    hint: "Enter 0 if none, or if this does not apply to you",
+    type: "number",
+    placeholder: "0",
+    min: 0,
+    max: 20,
+    step: 1,
+  },
+  {
     name: "glucose",
     label: "Fasting glucose (mg/dL)",
     type: "number",
@@ -249,24 +259,6 @@ export const DIABETES_FIELDS: FieldDef[] = [
     fromOcr: true,
     min: 40,
     max: 500,
-  },
-  {
-    name: "dpf",
-    label: "Diabetes pedigree function",
-    type: "number",
-    placeholder: "0.47",
-    min: 0.05,
-    max: 2.5,
-  },
-  { name: "bmi", label: "BMI (kg/m²)", type: "number", placeholder: "27.4", min: 10, max: 70 },
-  {
-    name: "insulin",
-    label: "Serum insulin (µU/mL)",
-    type: "number",
-    placeholder: "94",
-    fromOcr: true,
-    min: 1,
-    max: 900,
   },
   {
     name: "bloodPressure",
@@ -278,13 +270,33 @@ export const DIABETES_FIELDS: FieldDef[] = [
     max: 150,
   },
   {
-    name: "pregnancies",
-    label: "Number of pregnancies",
+    name: "skinThickness",
+    label: "Triceps skin fold thickness (mm)",
+    hint: "Skin thickness measured at the back of the upper arm",
     type: "number",
-    placeholder: "0",
-    min: 0,
-    max: 20,
-    step: 1,
+    placeholder: "24",
+    fromOcr: true,
+    min: 5,
+    max: 100,
+  },
+  {
+    name: "insulin",
+    label: "Serum insulin (µU/mL)",
+    type: "number",
+    placeholder: "94",
+    fromOcr: true,
+    min: 1,
+    max: 900,
+  },
+  { name: "bmi", label: "Body mass index (kg/m²)", type: "number", placeholder: "27.4", min: 10, max: 70 },
+  {
+    name: "dpf",
+    label: "Diabetes pedigree function",
+    hint: "Family-history score, usually between 0.05 and 2.5",
+    type: "number",
+    placeholder: "0.47",
+    min: 0.05,
+    max: 2.5,
   },
   {
     name: "familyHistory",
@@ -306,18 +318,27 @@ export function predictDiabetes(v: Values): PredictionOutcome {
   const bmi = num(v.bmi);
   const insulin = num(v.insulin);
   const age = num(v.age);
+  const skin = num(v.skinThickness);
 
   const glucoseScore = (glucose - 90) * 0.7;
   const dpfScore = (dpf - 0.35) * 34;
   const bmiScore = (bmi - 22) * 1.9;
   const insulinScore = (insulin - 80) * 0.09;
+  const skinScore = (skin - 20) * 0.35;
   const ageScore = (age - 28) * 0.4;
   const familyScore = v.familyHistory === "Yes" ? 12 : 0;
   const activityScore =
     v.activity === "Rarely or never" ? 11 : v.activity === "Sometimes (1 to 3 days)" ? 5 : 0;
 
   const score =
-    glucoseScore + dpfScore + bmiScore + insulinScore + ageScore + familyScore + activityScore;
+    glucoseScore +
+    dpfScore +
+    bmiScore +
+    insulinScore +
+    skinScore +
+    ageScore +
+    familyScore +
+    activityScore;
 
   return buildOutcome(
     score,
@@ -343,6 +364,7 @@ export function predictDiabetes(v: Values): PredictionOutcome {
       { label: "Fasting glucose", weight: glucoseScore * 1.7 },
       { label: "BMI", weight: bmiScore * 2.2 },
       { label: "Insulin response", weight: insulinScore * 3 },
+      { label: "Skin fold thickness", weight: skinScore * 3 },
       { label: "Family history & exercise", weight: (familyScore + activityScore) * 2.2 },
     ],
     {
@@ -374,7 +396,15 @@ export const BREAST_FIELDS: FieldDef[] = [
   { name: "smoothnessMean", label: "Mean smoothness", type: "number", placeholder: "0.096", min: 0, max: 1 },
   { name: "compactnessMean", label: "Mean compactness", type: "number", placeholder: "0.104", min: 0, max: 1 },
   { name: "concavityMean", label: "Mean concavity", type: "number", placeholder: "0.089", min: 0, max: 1 },
-  { name: "symmetryMean", label: "Mean symmetry", type: "number", placeholder: "0.181", min: 0, max: 1 },
+  {
+    name: "concavePointsMean",
+    label: "Mean number of concave points",
+    hint: "Concave points on the nucleus outline",
+    type: "number",
+    placeholder: "0.048",
+    min: 0,
+    max: 1,
+  },
   {
     name: "familyHistory",
     label: "Has anyone in your family had breast cancer?",
