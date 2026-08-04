@@ -177,6 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       accountExists,
       resetPassword,
+      deleteAccount,
     }),
     [ready, user, accounts, register, login, logout, accountExists, resetPassword, deleteAccount],
   );
