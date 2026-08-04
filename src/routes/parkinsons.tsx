@@ -40,7 +40,7 @@ function ParkinsonsPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Average vocal fundamental frequency, jitter, shimmer, harmonic-to-noise ratio and RPDE from your voice analysis report, plus tremor, rigidity, bradykinesia and handwriting change.",
+          body: "The full set of acoustic measurements from your voice analysis report — average, highest and lowest vocal fundamental frequency, the jitter family of pitch measures, the shimmer family of loudness measures, noise-to-harmonics and harmonics-to-noise ratios, recurrence period density entropy, signal fractal scaling, both pitch spread measures, signal complexity and pitch period entropy — plus tremor, stiffness, slowed movement and handwriting change.",
         },
         {
           heading: "How the voice metrics are produced",

@@ -40,7 +40,7 @@ function HeartPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Age, sex, resting blood pressure, total cholesterol, fasting blood sugar, chest pain character, maximum heart rate under exertion, exercise-induced angina and ST depression. Each contributes a weighted share of the final probability.",
+          body: "Age, sex, chest pain type, resting blood pressure, serum cholesterol, fasting blood sugar, the resting electrocardiogram result, maximum heart rate reached during exercise, exercise-related chest pain, ST segment depression and slope, the number of narrowed major blood vessels and the thalassemia blood test result. Each contributes a weighted share of the final probability.",
         },
         {
           heading: "Why OCR helps here",

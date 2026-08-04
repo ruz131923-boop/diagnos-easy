@@ -40,7 +40,7 @@ function DiabetesPage() {
       about={[
         {
           heading: "What the model looks at",
-          body: "Fasting glucose, serum insulin, diastolic blood pressure, BMI, age, pregnancies, the diabetes pedigree function (usually between 0.05 and 2.5, where a higher score means more diabetes among your relatives), family history and weekly physical activity — a superset of the classic Pima Indians diabetes feature set.",
+          body: "Age, number of pregnancies, fasting glucose, diastolic blood pressure, triceps skin fold thickness, serum insulin, body mass index and the diabetes pedigree function (usually between 0.05 and 2.5, where a higher score means more diabetes among your relatives), plus family history and weekly physical activity.",
         },
         {
           heading: "Why the pre-diabetes band matters",
