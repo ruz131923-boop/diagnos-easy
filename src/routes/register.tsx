@@ -175,6 +175,71 @@ function Field({
   );
 }
 
+function DobField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [parts, setParts] = useState(() => {
+    const [py = "", pm = "", pd = ""] = value ? value.split("-") : [];
+    return { y: py, m: pm, d: pd };
+  });
+  const { y, m, d } = parts;
+  const thisYear = new Date().getFullYear();
+  const years = Array.from({ length: 120 }, (_, i) => String(thisYear - i));
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  const daysInMonth = y && m ? new Date(Number(y), Number(m), 0).getDate() : 31;
+  const days = Array.from({ length: daysInMonth }, (_, i) => String(i + 1).padStart(2, "0"));
+
+  const update = (part: "y" | "m" | "d", raw: string) => {
+    const next = { y, m, d, [part]: raw } as { y: string; m: string; d: string };
+    setParts(next);
+    if (!next.y || !next.m || !next.d) {
+      onChange("");
+      return;
+    }
+    const max = new Date(Number(next.y), Number(next.m), 0).getDate();
+    const day = Math.min(Number(next.d), max);
+    setParts({ ...next, d: String(day).padStart(2, "0") });
+    onChange(`${next.y}-${next.m}-${String(day).padStart(2, "0")}`);
+  };
+
+  const selectClass =
+    "h-10 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground transition-colors duration-300 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30";
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="dobDay">Date of birth</Label>
+      <div className="grid grid-cols-3 gap-2">
+        <select id="dobDay" aria-label="Day" value={d} onChange={(e) => update("d", e.target.value)} className={selectClass}>
+          <option value="">Day</option>
+          {days.map((day) => (
+            <option key={day} value={day}>
+              {Number(day)}
+            </option>
+          ))}
+        </select>
+        <select aria-label="Month" value={m} onChange={(e) => update("m", e.target.value)} className={selectClass}>
+          <option value="">Month</option>
+          {months.map((name, i) => (
+            <option key={name} value={String(i + 1).padStart(2, "0")}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <select aria-label="Year" value={y} onChange={(e) => update("y", e.target.value)} className={selectClass}>
+          <option value="">Year</option>
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p className="text-xs text-muted-foreground">Pick day, month and year from the lists.</p>
+    </div>
+  );
+}
+
 function RegisterPage() {
   const { register, user, hasAccount, ready } = useAuth();
   const navigate = useNavigate();
@@ -342,7 +407,7 @@ function RegisterPage() {
             onChange={set("nameWithInitials")}
             placeholder="A. N. Perera"
           />
-          <Field id="dateOfBirth" label="Date of birth" type="date" value={form.dateOfBirth} onChange={set("dateOfBirth")} />
+          <DobField value={form.dateOfBirth} onChange={set("dateOfBirth")} />
           <Field id="gender" label="Gender" value={form.gender} onChange={set("gender")} options={GENDERS} />
           <Field id="email" label="Email address" type="email" value={form.email} onChange={set("email")} placeholder="you@example.com" />
           <Field
