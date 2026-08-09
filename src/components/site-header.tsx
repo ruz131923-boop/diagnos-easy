@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Activity, LogOut, Menu, X } from "lucide-react";
+import { Activity, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ const navLinkClass =
   "text-sm text-muted-foreground transition-colors duration-300 hover:text-primary";
 
 export function SiteHeader() {
-  const { user, logout, ready, hasAccount } = useAuth();
+  const { user, logout, ready, hasAccount, isAdmin, adminLogout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -52,7 +52,27 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          {ready && user ? (
+          {ready && isAdmin ? (
+            <>
+              <Link to="/admin">
+                <Button variant="ghost" size="sm">
+                  <ShieldCheck className="size-4" aria-hidden="true" />
+                  Admin
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  adminLogout();
+                  navigate({ to: "/" });
+                }}
+              >
+                <LogOut className="size-4" aria-hidden="true" />
+                Log out
+              </Button>
+            </>
+          ) : ready && user ? (
             <>
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm">
@@ -110,7 +130,26 @@ export function SiteHeader() {
               How It Works
             </Link>
             <div className="mt-2 flex gap-2">
-              {ready && user ? (
+              {ready && isAdmin ? (
+                <>
+                  <Link to="/admin" onClick={() => setOpen(false)} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Admin dashboard
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      adminLogout();
+                      setOpen(false);
+                      navigate({ to: "/" });
+                    }}
+                  >
+                    Log out
+                  </Button>
+                </>
+              ) : ready && user ? (
                 <>
                   <Link to="/dashboard" onClick={() => setOpen(false)} className="flex-1">
                     <Button variant="outline" size="sm" className="w-full">
