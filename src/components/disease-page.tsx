@@ -4,6 +4,7 @@ import { AuthGate } from "@/components/auth-gate";
 import { OcrUpload } from "@/components/ocr-upload";
 import { PredictionForm } from "@/components/prediction-form";
 import type { PredictionOutcome } from "@/components/prediction-result";
+import { logActivity } from "@/lib/activity";
 import { useAuth } from "@/lib/auth";
 import type { FieldDef, Values } from "@/lib/prediction";
 
@@ -132,6 +133,11 @@ export function DiseasePage({
                     if (key) next[key] = f.value.replace(/[^\d.]/g, "");
                   });
                   setValues(next);
+                  logActivity({
+                    username: user?.username ?? "guest",
+                    type: "report-scan",
+                    detail: title,
+                  });
                 }}
               />
             </AuthGate>
@@ -155,6 +161,7 @@ export function DiseasePage({
                   values={values}
                   onChange={setValues}
                   predict={predict}
+                  activityLabel={title}
                 />
               </AuthGate>
             </div>

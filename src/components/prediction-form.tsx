@@ -5,6 +5,8 @@ import { PredictionResult, type PredictionOutcome } from "@/components/predictio
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { logActivity } from "@/lib/activity";
+import { useAuth } from "@/lib/auth";
 import type { FieldDef, Values } from "@/lib/prediction";
 
 export function PredictionForm({
@@ -13,13 +15,17 @@ export function PredictionForm({
   onChange,
   predict,
   submitLabel = "Run prediction",
+  activityLabel,
 }: {
   fields: FieldDef[];
   values: Values;
   onChange: (values: Values) => void;
   predict: (values: Values) => PredictionOutcome;
   submitLabel?: string;
+  /** Name of the screening, recorded in the administrator activity log. */
+  activityLabel?: string;
 }) {
+  const { user } = useAuth();
   const [outcome, setOutcome] = useState<PredictionOutcome | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +81,14 @@ export function PredictionForm({
     setRunning(true);
     setOutcome(null);
     window.setTimeout(() => {
-      setOutcome(predict(values));
+      const result = predict(values);
+      setOutcome(result);
+      logActivity({
+        username: user?.username ?? "guest",
+        type: "prediction",
+        detail: activityLabel ?? "Prediction",
+        score: result.score,
+      });
       setRunning(false);
     }, 1100);
   };

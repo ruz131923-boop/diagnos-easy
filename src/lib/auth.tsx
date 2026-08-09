@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { logActivity, removeActivityFor } from "@/lib/activity";
+
 export type StoredUser = {
   fullName: string;
   nameWithInitials: string;
@@ -26,6 +28,11 @@ export type StoredUser = {
 type AuthState = {
   ready: boolean;
   user: StoredUser | null;
+  /** True while an administrator is signed in on this browser. */
+  isAdmin: boolean;
+  adminUsername: string | null;
+  /** All accounts stored on this device — used by the administrator dashboard. */
+  accounts: StoredUser[];
   /** True when this browser already has a registered account (one account per person). */
   hasAccount: boolean;
   register: (user: StoredUser) => { ok: boolean; error?: string };
@@ -35,10 +42,22 @@ type AuthState = {
   resetPassword: (username: string, password: string) => { ok: boolean; error?: string };
   /** Removes the stored account from this browser so a fresh registration is possible. */
   deleteAccount: () => void;
+  adminLogin: (username: string, password: string) => { ok: boolean; error?: string };
+  adminLogout: () => void;
+  /** Administrator privilege: remove any fake or unauthorised account. */
+  adminDeleteAccount: (username: string) => void;
+  refreshAccounts: () => void;
 };
 
 const ACCOUNTS_KEY = "vitalsense.accounts";
 const SESSION_KEY = "vitalsense.session";
+const ADMIN_SESSION_KEY = "vitalsense.adminSession";
+
+/**
+ * Front-end prototype administrator credentials. When the back end is
+ * connected these move to the server and are checked there.
+ */
+export const ADMIN_CREDENTIALS = { username: "admin", password: "Vital@Admin1" };
 
 const AuthContext = createContext<AuthState | null>(null);
 
@@ -56,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [accounts, setAccounts] = useState<StoredUser[]>([]);
   const [user, setUser] = useState<StoredUser | null>(null);
+  const [adminUsername, setAdminUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const loaded = readAccounts();
@@ -66,6 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const found = loaded.find((a) => a.username === session);
         if (found) setUser(found);
       }
+      const admin = window.localStorage.getItem(ADMIN_SESSION_KEY);
+      if (admin) setAdminUsername(admin);
     } catch {
       /* ignore */
     }
@@ -105,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         /* ignore */
       }
+      logActivity({ username: newUser.username, type: "register", detail: newUser.email });
       return { ok: true };
     },
     [persist],
@@ -123,19 +146,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
+    logActivity({ username: found.username, type: "login" });
     return { ok: true };
   }, []);
 
   const logout = useCallback(() => {
+    if (user) logActivity({ username: user.username, type: "logout" });
     setUser(null);
     try {
       window.localStorage.removeItem(SESSION_KEY);
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [user]);
 
   const deleteAccount = useCallback(() => {
+    if (user) logActivity({ username: user.username, type: "account-deleted" });
     setUser(null);
     setAccounts([]);
     try {
@@ -144,7 +170,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
+  }, [user]);
+
+  const adminLogin = useCallback<AuthState["adminLogin"]>((username, password) => {
+    const name = username.trim();
+    if (
+      name.toLowerCase() !== ADMIN_CREDENTIALS.username ||
+      password !== ADMIN_CREDENTIALS.password
+    ) {
+      return { ok: false, error: "Incorrect administrator username or password." };
+    }
+    setAdminUsername(ADMIN_CREDENTIALS.username);
+    setAccounts(readAccounts());
+    try {
+      window.localStorage.setItem(ADMIN_SESSION_KEY, ADMIN_CREDENTIALS.username);
+    } catch {
+      /* ignore */
+    }
+    logActivity({ username: ADMIN_CREDENTIALS.username, type: "admin-login" });
+    return { ok: true };
   }, []);
+
+  const adminLogout = useCallback(() => {
+    setAdminUsername(null);
+    try {
+      window.localStorage.removeItem(ADMIN_SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const adminDeleteAccount = useCallback<AuthState["adminDeleteAccount"]>(
+    (username) => {
+      const next = readAccounts().filter(
+        (a) => a.username.toLowerCase() !== username.toLowerCase(),
+      );
+      persist(next);
+      removeActivityFor(username);
+      logActivity({
+        username: ADMIN_CREDENTIALS.username,
+        type: "account-deleted",
+        detail: `Removed account “${username}”`,
+      });
+      try {
+        if (window.localStorage.getItem(SESSION_KEY)?.toLowerCase() === username.toLowerCase()) {
+          window.localStorage.removeItem(SESSION_KEY);
+          setUser(null);
+        }
+      } catch {
+        /* ignore */
+      }
+    },
+    [persist],
+  );
+
+  const refreshAccounts = useCallback(() => setAccounts(readAccounts()), []);
 
   const accountExists = useCallback<AuthState["accountExists"]>(
     (username) =>
@@ -171,6 +251,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       ready,
       user,
+      isAdmin: adminUsername !== null,
+      adminUsername,
+      accounts,
       hasAccount: accounts.length > 0,
       register,
       login,
@@ -178,8 +261,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accountExists,
       resetPassword,
       deleteAccount,
+      adminLogin,
+      adminLogout,
+      adminDeleteAccount,
+      refreshAccounts,
     }),
-    [ready, user, accounts, register, login, logout, accountExists, resetPassword, deleteAccount],
+    [
+      ready,
+      user,
+      adminUsername,
+      accounts,
+      register,
+      login,
+      logout,
+      accountExists,
+      resetPassword,
+      deleteAccount,
+      adminLogin,
+      adminLogout,
+      adminDeleteAccount,
+      refreshAccounts,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
