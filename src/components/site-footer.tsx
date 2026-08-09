@@ -113,6 +113,9 @@ export function SiteFooter() {
             <Link to="/cookie-policy" className="transition-colors hover:text-primary">
               Cookie Policy
             </Link>
+            <Link to="/admin-login" className="transition-colors hover:text-primary">
+              Administrator Login
+            </Link>
           </nav>
         </div>
         <p className="mt-6 rounded-lg border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
