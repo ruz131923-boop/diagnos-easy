@@ -126,6 +126,18 @@ function Home() {
               </Button>
             </Link>
           </div>
+          <div className="animate-rise mt-5" style={{ animationDelay: "520ms" }}>
+            <Link to="/admin-login">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary-foreground/85 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
+                <ShieldCheck className="size-4" aria-hidden="true" />
+                Log in as admin
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
