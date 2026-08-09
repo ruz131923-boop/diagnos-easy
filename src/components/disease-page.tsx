@@ -4,6 +4,7 @@ import { AuthGate } from "@/components/auth-gate";
 import { OcrUpload } from "@/components/ocr-upload";
 import { PredictionForm } from "@/components/prediction-form";
 import type { PredictionOutcome } from "@/components/prediction-result";
+import { logActivity } from "@/lib/activity";
 import { useAuth } from "@/lib/auth";
 import type { FieldDef, Values } from "@/lib/prediction";
 
