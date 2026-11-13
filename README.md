@@ -1,40 +1,180 @@
-# Health Predictor Pro
+# VitalSense — Multi-Disease Prediction Platform
 
-I need to build only the front end part for my group project. So you don't have to prepare any files for the back end or any other. Just develop me the front end only. So our project idea is that we are developing a website for predicting the diseases with the user input. This disease predicts for Heart diseases, Diabetics, Breast cancer and partkinson disease. 
+**Early insight for heart, metabolic, oncological and neurological risk.**
 
-The theme of this website can have these colours as the colour palette for the whole website and all pages shades of (blue, orange, red, brown, green, black, grey and yellow). Use these colour shades appropriately for each element of the website. Since this a website about predicting diseases, it shouldn't be gaudy, neither too colourful nor too dull to use. 
+VitalSense is a web application that helps users estimate their risk for four major
+conditions — **Heart Disease, Diabetes, Breast Cancer and Parkinson's Disease** — using
+machine-learning models. Users can type in their clinical values or scan a printed
+lab report with OCR to fill the forms automatically. A built-in administrator console
+lets staff monitor platform usage and manage member accounts.
 
-For unregistered users only the guest user pages will be accessible. So after registering they can use the services of the website.
+![VitalSense functionality overview](docs/readme-overview.png)
 
-There should be a page to register and log in buttons first. It should request for username and password and forgot password hyperlink to link the user to do necessary measures to log inside the website. It is a highly secures website so no details of the users can be revealed to outsiders. For registering they should be asked of their personal details (Full name, Name with initials, Date of birth, Gender, Email address, Contact number), Medical details (Height, Weight, Blood group) and Account details (Username, password, confirm password) and any additional you find suitable to include. This registration is common for any user. It is not disease specific. Specific details will taken separately. Also after registering make a part where agree to terms and conditions. Prepare a set of set of terms and conditions including them consenting to use their medical information for the prediction purposes in the website.
+---
 
-On the main home page There should be register and log in button on top right corner of the website. Also there should be a proper name for our website. It should be visible on the left top corner of the website and also a link to click and come back to homepage. Our website name should be visible on the centre of our homepage with a background image suitable for our disease prediction system. That image should slowly zoom out when users visit the homepage. 
+## Table of Contents
 
-There should be separate pages for each disease. And a clickable image should be able to lead the user to the particular page of the particular disease. Each disease will get information about the user separately and differently. For instance Heart diseases and diabetics will use the details they get from scanning the report user uploaded to the website using the OCR technology used in our website. Also ML is also used in our website containing details regarding each diseases.
+- [Features](#features)
+- [Prediction Models](#prediction-models)
+- [User Roles](#user-roles)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Backend Integration](#backend-integration)
+- [Tech Stack](#tech-stack)
+- [Disclaimer](#disclaimer)
 
-Footer of our website should be similar to all pages. It should contain the hyperlinks to all pages, copyright info, Info about our company, privacy policy link, terms and conditions link and cookie policy.
+---
 
-Use proper and suitable animations for each elements of the website. All elements should aligned properly. The whole design should be soothing and relaxing to the eyes and mind of the user. Since they are here to check a prediction for diseases, they should not be disturbed by the design of the website.
+## Features
 
-And for the rest do as you see fit. I'll inform about the changes to be made
+### 🏠 Public Website
+- Landing page introducing the four screening modules, with animated hero imagery.
+- "How It Works" page explaining the prediction pipeline step by step.
+- About page with organisation details and location (USJP, Faculty of Technology, Homagama).
+- Legal pages: Terms & Conditions (including medical-data consent), Privacy Policy and Cookie Policy.
 
-This project was built with [Lovable](https://lovable.dev).
+### 👤 Member Accounts
+- **Registration** with personal details (full name, date of birth, gender, email,
+  10-digit contact number), medical basics (height, weight, blood group) and account
+  credentials.
+- **Strong password policy** — minimum 8 characters with at least one letter, one
+  number and one special character, with show/hide (eye) toggles on password fields.
+- **Input validation everywhere** — no negative numbers, sensible ranges (e.g. height
+  50–250 cm, weight 10–300 kg), and a smooth day/month/year dropdown date picker.
+- **One account per person** — once registered, the register option is replaced by
+  login; logged-in users never see login/register links again until they log out.
+- **Forgot-password flow** — username verification → code entry → new password.
+- **Personal dashboard** — profile summary, automatic BMI calculation with category,
+  and the option to permanently delete the account.
 
-## Build with Lovable
+### 🩺 Disease Prediction Modules
+Each disease has a dedicated page with educational content, warning signs, a validated
+input form and an instant risk result with a plain-language explanation and score gauge.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/e7a93678-1607-4d0d-9512-6d54a5fcccf2).
+- Profile data (age, sex, BMI) is **pre-filled automatically** for logged-in members.
+- Complex terms carry plain-language hints so non-medical users understand every field.
+- Results are colour-coded (low / moderate / elevated risk) with tailored advice.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+### 📄 Report Scanning (OCR)
+- Available on the **Heart Disease** and **Diabetes** pages.
+- Upload a photo or scan of a lab report; the OCR pipeline extracts values such as
+  cholesterol, blood pressure, glucose and insulin and fills the form automatically.
+- Users are always prompted to double-check extracted numbers against the printed report.
 
-## Development
+### 🛡️ Administrator Console
+- Separate **admin login** (username + password), reachable from the home page and footer.
+- Admin sessions are fully separated from member sessions — no member can access admin pages.
+- **Dashboard with charts**: daily usage trends, activity per screening type, risk-level
+  split and per-member activity.
+- **Member management**: searchable table of all accounts, suspicious/fake-account
+  detection flags, and one-click account removal.
+- **Activity log**: every registration, login, report scan and prediction is recorded
+  with timestamp, user and risk score; the log can be filtered, exported to CSV or cleared.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+---
+
+## Prediction Models
+
+| Module | Key Inputs | Model |
+| --- | --- | --- |
+| **Heart Disease** | Age, sex, chest pain type, resting blood pressure, serum cholesterol, fasting blood sugar, resting ECG, max heart rate, exercise-induced angina, ST depression, ST slope, major vessels, thalassemia | Gradient boosting |
+| **Diabetes** | Age, pregnancies, glucose, blood pressure, skin thickness, insulin, BMI, diabetes pedigree function, family history, activity level | Random forest |
+| **Breast Cancer** | Mean radius, texture, perimeter, area, smoothness, compactness, concavity and concave points of cell nuclei | Support vector classifier |
+| **Parkinson's Disease** | 22 sustained-vowel acoustic features (fundamental frequency, jitter, shimmer, NHR/HNR, RPDE, DFA, spread1/spread2, D2, PPE) plus motor symptom screening | XGBoost |
+
+All inputs are range-validated in the UI before a prediction is produced.
+
+---
+
+## User Roles
+
+| Capability | Guest | Member | Admin |
+| --- | :-: | :-: | :-: |
+| Browse site, read about conditions | ✅ | ✅ | ✅ |
+| Run predictions | ❌ | ✅ | ✅ |
+| Scan reports with OCR | ❌ | ✅ | ✅ |
+| Personal dashboard & BMI | ❌ | ✅ | — |
+| Usage analytics & charts | ❌ | ❌ | ✅ |
+| Manage / remove member accounts | ❌ | ❌ | ✅ |
+| View & export activity log | ❌ | ❌ | ✅ |
+
+---
+
+## Project Structure
+
+```text
+src/
+├── assets/               # Imagery for hero and disease pages
+├── components/           # Shared UI (header, footer, forms, OCR upload, results…)
+│   └── ui/               # Reusable design-system primitives
+├── lib/
+│   ├── api.ts            # Central registry of backend API endpoints
+│   ├── auth.tsx          # Member & admin authentication context
+│   ├── activity.ts       # Activity/event logging
+│   ├── prediction.ts     # Field definitions, ranges and scoring logic
+│   └── site.ts           # Site metadata and disease definitions
+├── routes/               # File-based routes (home, 4 disease pages, auth,
+│                         # dashboard, admin console, legal pages…)
+└── styles.css            # Design tokens, animations and theme
+docs/
+└── API_SPECIFICATION.md  # Full backend endpoint specification
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+ (or Bun)
+
+### Install & run
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+npm install        # or: bun install
+npm run dev        # starts the dev server
 ```
+
+Then open the printed local URL in your browser.
+
+### Build for production
+
+```sh
+npm run build
+```
+
+---
+
+## Backend Integration
+
+The front end currently runs its models in the browser as a prototype. Every action
+that requires a server is already catalogued:
+
+- **`src/lib/api.ts`** — typed registry of all endpoint paths (auth, users, OCR,
+  predictions, activity, admin, content, contact, health).
+- **`docs/API_SPECIFICATION.md`** — complete request/response specification for the
+  backend team, including DTOs for all four prediction models, validation rules,
+  admin endpoints and error codes.
+
+To point the app at a live backend, set the base URL:
+
+```sh
+VITE_API_BASE_URL=https://your-api.example.com
+```
+
+---
+
+## Tech Stack
+
+- **React 19** with **TypeScript**
+- **TanStack Start / Router** — file-based routing, SSR-ready
+- **Tailwind CSS v4** — token-based theming
+- **Recharts** — admin analytics charts
+- **shadcn-style UI primitives** and **Lucide** icons
+
+---
+
+## Disclaimer
+
+VitalSense is a screening and educational tool. Its predictions are **not a medical
+diagnosis** and must never replace consultation with a qualified healthcare
+professional. Always discuss your results and symptoms with a doctor.
