@@ -178,3 +178,5 @@ VITE_API_BASE_URL=https://your-api.example.com
 VitalSense is a screening and educational tool. Its predictions are **not a medical
 diagnosis** and must never replace consultation with a qualified healthcare
 professional. Always discuss your results and symptoms with a doctor.
+
+<img width="1920" height="1088" alt="vitalsense-overview" src="https://github.com/user-attachments/assets/5ceb62f6-65bd-4599-8974-acc8da7dfab2" />
